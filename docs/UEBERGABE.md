@@ -47,9 +47,10 @@ Bilder (Turnierlogos, PDF-Logos, Banner) liegen auf `base44.app` → müssen vor
 - Pro Spieler zählt das **beste Ergebnis** über alle seine Starts im Turnier.
 - Leere Datensätze zählen nicht. **No-Show** (`{no_show:true}`): keine Platzierung, keine Punkte, zählt nicht zur Teilnehmerzahl.
   **W.O.** (`{wo:true}`): siehe Future.
-- **Lochkegel-Sportler** (`is_hobby`, derzeit 1 Spieler): laut Beschreibung keine Einzelwertung – **tatsächlich** werden sie
-  bei der Punktevergabe aber mitgewertet (`includeHobby: true`), nur im Zwischenstand ausgeblendet. Die Einstellung
-  `lochkegel_in_tour` wird im Code nirgends gelesen. → Frage 8.
+- **Lochkegel-/Hobbyspieler** (`is_hobby`, derzeit 1 Spieler) – **entschieden 16.11.2026**: bekommen ganz normal Tour-Punkte
+  und stehen in der Hauptrangliste (auch im Zwischenstand, bisher dort ausgeblendet), **zusätzlich** gibt es eine eigene
+  Hobby-Rangliste (nur `is_hobby`-Spieler, gleiche Punkte, Herren/Damen getrennt – Annahme, bitte bestätigen).
+  Die alte Einstellung `lochkegel_in_tour` entfällt.
 - Reihung: 1. mehr Kegel, 2. mehr Abräumen, 3. weniger Fehlwürfe.
 - Gruppen: Standard nach Spieler-Kategorie (Herren/Damen); Future nach Altersklasse **und** Geschlecht.
 
@@ -108,4 +109,4 @@ Ab Platz 71: 0 Punkte. (Der `PointsTableEditor` im Admin ändert die Tabelle nur
 5. **Newsletter & Bestätigungs-Mails**: wie bei 9pinfantasy erst einschalten, wenn alles läuft?
 6. **Öffentlich**: Sollen Ranglisten, Turniere und Spielerprofile ohne Login sichtbar sein (wie bisher)?
 7. **Saison 2024/025**: Name absichtlich so, oder Tippfehler (2024/2025)?
-8. **Lochkegel**: Sollen Lochkegel-Sportler Tour-Punkte bekommen (so läuft es derzeit) oder nicht?
+8. ~~Lochkegel~~ → entschieden (siehe Wertung).
