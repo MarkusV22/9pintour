@@ -24,7 +24,8 @@ Eigene Daten, keine Verbindung zu 9pinfantasy. Kein Zeitdruck.
 | TournamentRequest | 8 | Turnieranfragen (7 genehmigt, 1 abgelehnt) |
 | PlayerMerge | 7 | zusammengeführte Spieler-Duplikate |
 | PlayerChangeRequest | 2 | Änderungsanträge (genehmigt) |
-| ActionLog, NewsletterSubscriber | ? | CSV noch ausständig (ActionLog hat Einträge) |
+| NewsletterSubscriber | 10 | Newsletter-Abonnenten |
+| ActionLog | ? | CSV noch ausständig (hat in der App Einträge) |
 
 Hinweis: Der Export über die Editor-Schnittstelle lieferte die geschützten Tabellen leer; maßgeblich sind die
 CSV-Exporte aus dem Base44-Dashboard (`data-base44/csv/`). Kerntabellen (Turniere, Teams, Startpläne, Ergebnisse,
@@ -96,6 +97,7 @@ Ab Platz 71: 0 Punkte. (Der `PointsTableEditor` im Admin ändert die Tabelle nur
 - **Turnieranfragen** (`TournamentRequest`): Veranstalter melden ein Turnier an, Admin bestätigt → Bestätigungs-Mails.
 - **PDF**: Startplan, Ergebnisse, Ausschreibung, Finale – mit Logo je Kategorie (PDF-Branding-Admin).
 - **E-Mails/Newsletter**: neues Turnier veröffentlicht, Turnier beendet (Top 3), Anfragen. Ein-/Ausschaltbar.
+  In Base44 derzeit **an** (`newsletter_enabled`, `ads_enabled` = true) – im Neubau beim Start **aus** (Entscheidung).
 - **Zahlungen (Stripe)**: Startgebühr pro Mannschaft/Einzelstarter online, Bar-Zahlungen markierbar, Tour-Fee-Abrechnung;
   Werbefrei-Abo (jährlich/lifetime). Bisher genutzt: 1 Turnier mit Online-Zahlung (Marchfeldturnier 2026), 1 offene Zahlung, 0 Abos.
 - **Werbung**: Banner (`ads_html`), Dashboard-Banner, Discord-Karte.
@@ -112,7 +114,7 @@ Ab Platz 71: 0 Punkte. (Der `PointsTableEditor` im Admin ändert die Tabelle nur
 ## Offene Fragen an Markus
 1. ~~Domain~~ → 9pintour.at bei **IONOS** (Registrar + Nameserver ui-dns). Plan wie bei 9pinfantasy: Zone in Cloudflare anlegen, Nameserver bei IONOS auf Cloudflare umstellen (Registrar bleibt IONOS). Keine E-Mail-Postfächer auf der Domain (bestätigt). Base44-Einträge bis zur Umstellung „nur DNS“ (graue Wolke).
 2. ~~Login~~ → **beides** (Google + E-Mail/Passwort), wie 9pinfantasy; E-Mail-Nutzer bekommen Passwort-Setzen-Mail.
-3. **Leere Tabellen** → geklärt, CSV-Exporte vorhanden; noch ausständig: ActionLog, AppSetting, NewsletterSubscriber, Player.
+3. **Leere Tabellen** → geklärt, CSV-Exporte vorhanden; noch ausständig: nur ActionLog. Player/AppSetting im CSV identisch mit API-Export.
 4. ~~Stripe/Werbefrei-Abo/Werbung~~ → **einbauen, aber deaktiviert** (per Einstellung einschaltbar).
 5. ~~Mails~~ → **wie bei 9pinfantasy**: vorerst aus, erst einschalten, wenn alles läuft.
 6. ~~Öffentlich~~ → **ja**, Ranglisten, Turniere, Spielerprofile ohne Login sichtbar (wie bisher).
