@@ -1,0 +1,28 @@
+{
+  "name": "9pintour",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p .",
+    "dev": "wrangler dev --local",
+    "db:reset": "rm -rf .wrangler/state && wrangler d1 migrations apply 9pintour --local && tsx scripts/import-base44.ts data-base44/csv .wrangler/import.sql && wrangler d1 execute 9pintour --local --file .wrangler/import.sql",
+    "import": "tsx scripts/import-base44.ts data-base44/csv .wrangler/import.sql",
+    "build": "npm --prefix web run build",
+    "dev:web": "npm --prefix web run dev",
+    "setup": "npm install && npm --prefix web install"
+  },
+  "dependencies": {
+    "hono": "^4.13.18"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261112.1",
+    "@types/node": "^26.6.6",
+    "csv-parse": "^7.0.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0",
+    "wrangler": "^4.161.0"
+  }
+}

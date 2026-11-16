@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "9pintour",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // Eigene Domain erst bei der Umstellung eintragen (Zone 9pintour.at muss dann im selben Cloudflare-Konto liegen):
+  // "routes": [{ "pattern": "9pintour.at", "custom_domain": true }, { "pattern": "www.9pintour.at", "custom_domain": true }],
+  "workers_dev": true,
+  // Frontend (Vite-Build) wird vom selben Worker ausgeliefert; unbekannte Pfade → index.html
+  "assets": {
+    "directory": "./web/dist",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "9pintour",
+      "database_id": "LOCAL-ONLY-REPLACE-AFTER-wrangler-d1-create",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "9pintour-media" }
+  ],
+  "vars": {
+    "APP_URL": "",
+    // Newsletter/Bestätigungs-Mails erst einschalten, wenn alles läuft (Konto-Mails gehen immer)
+    "EMAILS_ENABLED": "false"
+  },
+  "observability": { "enabled": true }
+}

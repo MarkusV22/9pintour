@@ -1,0 +1,26 @@
+// Berechtigungen (1:1 aus Base44 src/lib/roles.js)
+// admin → alles · turnier_admin → Turniere, Startpläne, Ergebnisse, Spielerdatenbank
+// Veranstalter eines Turniers (Ersteller oder Mitveranstalter) → dieses Turnier bearbeiten
+
+export interface RoleUser { id: string; email: string; role: string; base44_id?: string | null }
+export interface OrganizedTournament { created_by?: string | null; co_organizer_emails?: string | string[] | null }
+
+export const isAdmin = (u: RoleUser | null | undefined) => u?.role === "admin";
+export const isTurnierAdmin = (u: RoleUser | null | undefined) => u?.role === "admin" || u?.role === "turnier_admin";
+
+export function coOrganizerEmails(t: OrganizedTournament | null | undefined): string[] {
+  const v = t?.co_organizer_emails;
+  if (Array.isArray(v)) return v;
+  if (typeof v === "string" && v) {
+    try { const p = JSON.parse(v); if (Array.isArray(p)) return p.map(String); } catch { /* ignorieren */ }
+  }
+  return [];
+}
+
+export function isTournamentOrganizer(u: RoleUser | null | undefined, t: OrganizedTournament | null | undefined): boolean {
+  if (!u || !t) return false;
+  if (isTurnierAdmin(u)) return true;
+  if (t.created_by && (t.created_by === u.id || t.created_by === u.base44_id)) return true;
+  const mail = u.email.toLowerCase();
+  return coOrganizerEmails(t).some((e) => e.toLowerCase() === mail);
+}

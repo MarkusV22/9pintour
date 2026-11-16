@@ -1,6 +1,7 @@
 node_modules/
-.wrangler/
+web/node_modules/
 web/dist/
+.wrangler/
 .dev.vars
 *.sql
 !migrations/*.sql
