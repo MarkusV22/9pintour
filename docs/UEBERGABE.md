@@ -34,6 +34,19 @@ Punkte, Saisonen) sind in beiden Exporten identisch.
 36 Spieler sind mit einem Benutzerkonto verknüpft (`Player.user_email`).
 Bilder (Turnierlogos, PDF-Logos, Banner) liegen auf `base44.app` → müssen vor der Kündigung nach R2 kopiert werden.
 
+## Befunde aus dem Abgleich (16.11.2026)
+Übernommen werden die in Base44 gespeicherten Platzierungen/Punkte → Ranglisten identisch mit der laufenden App
+(Tour Herren: Temistokle 2750, Vsetecka P. 2450, Huber 2010; Damen: Walch 2175, Flatscher 2000, Nikolic 1780).
+Bei 8 von 11 abgeschlossenen Turnieren ergibt eine Neuberechnung exakt dasselbe. Abweichungen nur durch spätere Datenänderungen:
+- **Marchfeldturnier 2026**: Alois Anzenberger, Günter Eck, Roman Kothmeier existieren doppelt – je einmal als **Damen**
+  (Nr. 24522–24525, haben Damen-Punkte 10/15/30 bekommen) und korrekt als Herren. Die Damen-Duplikate sind in keinem Kader mehr.
+  → Offen: Duplikate entfernen und Marchfeld neu werten? (Echte Damen rücken dann vor.)
+- **Pongauer Stier 2026**: Hobbyspieler Peter Scholz wurde beim Abschluss (alte Regel) nicht gewertet; neu wäre er 27. (30 P).
+  → Offen: neu werten?
+- **2. Blaufränkisch Open**: Manfred Zach hat inzwischen nur noch einen leeren Score; zusammengeführte Spieler-Duplikate
+  verschieben die Damen-Plätze 16–24 um eins (Melanie Hahn: 6 → 10 P). → Offen: neu werten?
+- 173 Altdatensätze (Teams/Startplätze/Scores/Ergebnisse) gehören zu endgültig gelöschten Turnieren → nicht übernommen.
+
 ## Rollen
 - **admin** – alles.
 - **turnier_admin** – Turniere, Startpläne, Ergebnisse, Spielerdatenbank verwalten.
