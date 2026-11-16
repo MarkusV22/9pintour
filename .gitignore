@@ -1,0 +1,8 @@
+node_modules/
+.wrangler/
+web/dist/
+.dev.vars
+*.sql
+!migrations/*.sql
+# Base44-Datenexport (enthält Personendaten) – nicht ins Git
+data-base44/
