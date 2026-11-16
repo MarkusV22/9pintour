@@ -1,0 +1,263 @@
+{
+  "name": "Tournament",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name des Turniers"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Startdatum des Turniers"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Enddatum des Turniers (optional, falls mehrt\u00e4gig)"
+    },
+    "location": {
+      "type": "string",
+      "description": "Austragungsort"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "geplant",
+        "laufend",
+        "abgeschlossen"
+      ],
+      "default": "geplant",
+      "description": "Status des Turniers"
+    },
+    "tier": {
+      "type": "string",
+      "enum": [
+        "Grand Slam",
+        "Masters 1000",
+        "Masters 500",
+        "Masters 250",
+        "Challenger",
+        "Finalturnier",
+        "Competition"
+      ],
+      "default": "Masters 250",
+      "description": "Turnierkategorie (Gr\u00f6\u00dfe)"
+    },
+    "series_type": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "future"
+      ],
+      "default": "standard",
+      "description": "Serie: standard = 9-Pin Tour Hauptserie, future = 9PinFuture Nachwuchsserie"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Herren",
+        "Damen",
+        "Mixed",
+        "Sonstige"
+      ],
+      "default": "Herren",
+      "description": "Kategorie des Turniers"
+    },
+    "allowed_categories": {
+      "type": "string",
+      "description": "JSON-Array der erlaubten Mannschaftskategorien (z.B. [\"Herren\",\"Damen\",\"Mixed\"])",
+      "default": "[\"Herren\",\"Damen\",\"Mixed\"]"
+    },
+    "mixed_combinations": {
+      "type": "string",
+      "description": "JSON-Array der erlaubten Mixed-Kombinationen (z.B. [{\"damen\":2,\"herren\":2}]). Leer = alte systemweite Mixed-Logik.",
+      "default": "[]"
+    },
+    "team_size": {
+      "type": "number",
+      "enum": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "default": 4,
+      "description": "Anzahl Spieler pro Mannschaft (1\u20136)"
+    },
+    "lane_count": {
+      "type": "number",
+      "enum": [
+        4,
+        6,
+        8
+      ],
+      "default": 4,
+      "description": "Anzahl der Bahnen in der Kegelbahnanlage"
+    },
+    "slot_duration": {
+      "type": "number",
+      "enum": [
+        60,
+        70
+      ],
+      "default": 60,
+      "description": "Dauer pro Durchgang in Minuten (60 oder 70)"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "URL des Turnierlogos"
+    },
+    "livestream_url": {
+      "type": "string",
+      "description": "URL zum Livestream des Turniers (optional)"
+    },
+    "day_configs": {
+      "type": "string",
+      "description": "JSON-String der Spieltag-Konfigurationen (Name, Datum, Start-/Endzeit)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Beschreibung oder Notizen zum Turniers"
+    },
+    "co_organizer_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "E-Mail-Adressen der Mitveranstalter (diese erhalten Update-Rechte f\u00fcr das Turnier)"
+    },
+    "season_id": {
+      "type": "string",
+      "description": "ID der zugeh\u00f6rigen Saison"
+    },
+    "payment_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Online-Zahlung f\u00fcr Startpl\u00e4tze aktiviert"
+    },
+    "payment_amount": {
+      "type": "number",
+      "description": "Startgeb\u00fchr pro Mannschaft (Gesamtbetrag) in Cent \u2013 wird durch team_size geteilt (z.B. 4000 = 40,00 \u20ac f\u00fcr 4 Spieler = 10,00 \u20ac pro Spieler)"
+    },
+    "payment_amount_einzelstarter": {
+      "type": "number",
+      "description": "Startgeb\u00fchr pro Einzelstarter in Cent (z.B. 5000 = 50,00 \u20ac)"
+    },
+    "payment_currency": {
+      "type": "string",
+      "default": "eur",
+      "description": "W\u00e4hrung der Startgeb\u00fchr (ISO-Code, Kleinbuchstaben)"
+    },
+    "einzelstarter_paid_ids": {
+      "type": "string",
+      "description": "JSON-Array der Spieler-IDs von Einzelstartern, die bar bezahlt haben",
+      "default": "[]"
+    },
+    "einzelstarter_online_paid_ids": {
+      "type": "string",
+      "description": "JSON-Array der Spieler-IDs von Einzelstartern, die online bezahlt haben",
+      "default": "[]"
+    },
+    "tour_fee_remitted_cents": {
+      "type": "number",
+      "default": 0,
+      "description": "Bereits an die 9-Pin Tour abgef\u00fchrte Tour-Fee aus Barzahlungen (in Cent)"
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "final"
+      ],
+      "default": "normal",
+      "description": "Turniermodus: normal = Standard-Turnier, final = Finalturnier mit Gruppen + K.O.-Phase"
+    },
+    "final_groups": {
+      "type": "string",
+      "description": "JSON-String der Finalturnier-Gruppenzugeh\u00f6rigkeit (Herren/Damen Gruppe A/B mit Spieler-IDs)"
+    },
+    "registration_type": {
+      "type": "string",
+      "enum": [
+        "offen",
+        "einladung"
+      ],
+      "default": "offen",
+      "description": "Anmeldeart: offen = offene Anmeldung (Spieler k\u00f6nnen selbst Slots buchen), einladung = Einladungsturnier (nur der Veranstalter vergibt Slots)"
+    },
+    "deleted_at": {
+      "type": "string",
+      "description": "ISO-Zeitstempel des Soft-Delete (null = nicht gel\u00f6scht, wird nach 30 Tagen permanent gel\u00f6scht)"
+    },
+    "venues": {
+      "type": "string",
+      "description": "JSON-String-Array der Spielorte bei Multi-Spielort-Turnieren (9PinFuture): [{\"name\":\"...\",\"location\":\"...\",\"lane_count\":4}]. Leer/fehlend = Einzel-Spielort (top-level location/lane_count)."
+    }
+  },
+  "required": [
+    "name",
+    "date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    },
+    "read": null,
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        },
+        {
+          "data.co_organizer_emails": {
+            "$in": [
+              "{{user.email}}"
+            ]
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    }
+  }
+}

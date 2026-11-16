@@ -1,0 +1,75 @@
+{
+  "name": "Season",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name der Saison (z.B. '2025/26')"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Startdatum der Saison"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Enddatum der Saison"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": false,
+      "description": "Ist dies die aktive Saison?"
+    }
+  },
+  "required": [
+    "name",
+    "start_date",
+    "end_date"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    },
+    "read": null,
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    }
+  }
+}

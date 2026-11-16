@@ -1,0 +1,146 @@
+{
+  "name": "Player",
+  "type": "object",
+  "properties": {
+    "first_name": {
+      "type": "string",
+      "description": "Vorname des Spielers"
+    },
+    "last_name": {
+      "type": "string",
+      "description": "Nachname des Spielers"
+    },
+    "name": {
+      "type": "string",
+      "description": "Vollst\u00e4ndiger Name (Vor- und Nachname)"
+    },
+    "number": {
+      "type": "number",
+      "description": "Spielernummer"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "URL des Spielerfotos"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Herren",
+        "Damen"
+      ],
+      "description": "Kategorie des Spielers (Hauptwertung, immer aktiv)"
+    },
+    "age_class": {
+      "type": "string",
+      "enum": [
+        "U-10",
+        "U-15",
+        "U-19",
+        "U-23",
+        "Allgemeine Klasse",
+        "\u00dc-50",
+        "\u00dc-60"
+      ],
+      "default": "Allgemeine Klasse",
+      "description": "Altersklasse des Spielers (zus\u00e4tzliche Wertung)"
+    },
+    "birth_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Geburtsdatum des Spielers (YYYY-MM-DD)"
+    },
+    "club": {
+      "type": "string",
+      "description": "Verein des Spielers"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Telefonnummer des Spielers"
+    },
+    "whatsapp": {
+      "type": "boolean",
+      "default": false,
+      "description": "Verf\u00fcgbar \u00fcber WhatsApp"
+    },
+    "personal_best": {
+      "type": "number",
+      "description": "Pers\u00f6nliche Bestleistung (H\u00f6chstscore) des Spielers"
+    },
+    "walk_on_song": {
+      "type": "string",
+      "description": "Walk-on Song des Spielers (Song + Interpret)"
+    },
+    "is_hobby": {
+      "type": "boolean",
+      "default": false,
+      "description": "Lochkegel-Sportler: Ergebnisse z\u00e4hlen f\u00fcr die Mannschaftswertung, aber nicht f\u00fcr Einzelwertungen/Rangliste \u2013 erh\u00e4lt keine Tour-Punkte"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "E-Mail des verkn\u00fcpften Benutzerkontos (wird nur gesetzt wenn der User sich selbst verkn\u00fcpft)"
+    },
+    "privacy_accepted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Spieler hat den Datenschutz-Disclaimer akzeptiert"
+    },
+    "privacy_accepted_at": {
+      "type": "string",
+      "description": "Zeitpunkt der Datenschutz-Zustimmung (ISO-String)"
+    }
+  },
+  "required": [
+    "first_name",
+    "last_name",
+    "category"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "read": true,
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "user"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

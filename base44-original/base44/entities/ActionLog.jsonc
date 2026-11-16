@@ -1,0 +1,97 @@
+{
+  "name": "ActionLog",
+  "type": "object",
+  "properties": {
+    "tournament_id": {
+      "type": "string",
+      "description": "ID des betroffenen Turniers"
+    },
+    "tournament_name": {
+      "type": "string",
+      "description": "Name des betroffenen Turniers"
+    },
+    "player_id": {
+      "type": "string",
+      "description": "ID des betroffenen Spielers"
+    },
+    "player_name": {
+      "type": "string",
+      "description": "Name des betroffenen Spielers"
+    },
+    "team_id": {
+      "type": "string",
+      "description": "ID der betroffenen Mannschaft (optional)"
+    },
+    "team_name": {
+      "type": "string",
+      "description": "Name der betroffenen Mannschaft (optional)"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "score_create",
+        "score_update",
+        "score_delete",
+        "tournament_finish",
+        "tournament_reopen"
+      ],
+      "description": "Art der durchgef\u00fchrten Aktion"
+    },
+    "field": {
+      "type": "string",
+      "default": "score",
+      "description": "Betroffenes Feld"
+    },
+    "old_value": {
+      "type": "string",
+      "description": "Vorheriger Wert"
+    },
+    "new_value": {
+      "type": "string",
+      "description": "Neuer Wert"
+    },
+    "actor_id": {
+      "type": "string",
+      "description": "ID des ausf\u00fchrenden Benutzers"
+    },
+    "actor_email": {
+      "type": "string",
+      "description": "E-Mail des ausf\u00fchrenden Benutzers"
+    },
+    "actor_name": {
+      "type": "string",
+      "description": "Name des ausf\u00fchrenden Benutzers"
+    }
+  },
+  "required": [
+    "tournament_id",
+    "action"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

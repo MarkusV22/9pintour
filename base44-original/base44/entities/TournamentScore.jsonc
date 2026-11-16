@@ -1,0 +1,136 @@
+{
+  "name": "TournamentScore",
+  "type": "object",
+  "properties": {
+    "tournament_id": {
+      "type": "string",
+      "description": "ID des Turniers"
+    },
+    "team_id": {
+      "type": "string",
+      "description": "ID der Mannschaft (leer bei Finalturnier-Gruppenphase)"
+    },
+    "schedule_id": {
+      "type": "string",
+      "description": "ID des Startplatzes (bei Einzelstartern: jeder Start bekommt einen eigenen Score)"
+    },
+    "player_id": {
+      "type": "string",
+      "description": "ID des Spielers (aus Player-Entity)"
+    },
+    "player_name": {
+      "type": "string",
+      "description": "Legacy: Name des Spielers (wird nicht mehr verwendet)"
+    },
+    "score": {
+      "type": "number",
+      "description": "Score des Spielers"
+    },
+    "notes": {
+      "type": "string",
+      "description": "JSON der Bahndaten"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Herren",
+        "Damen",
+        "Mixed"
+      ],
+      "description": "Kategorie"
+    },
+    "group": {
+      "type": "string",
+      "description": "Gruppe im Finalturnier (z.B. \"A\", \"B\", \"KO-SF1-H\", \"KO-FINAL-D\")"
+    },
+    "co_organizer_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "E-Mail-Adressen der Mitveranstalter des Turniers (Denormalisiert f\u00fcr Schreibrechte)"
+    }
+  },
+  "required": [
+    "tournament_id",
+    "player_id",
+    "score",
+    "category"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        },
+        {
+          "data.co_organizer_emails": {
+            "$in": [
+              "{{user.email}}"
+            ]
+          }
+        }
+      ]
+    },
+    "read": null,
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        },
+        {
+          "data.co_organizer_emails": {
+            "$in": [
+              "{{user.email}}"
+            ]
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        },
+        {
+          "data.co_organizer_emails": {
+            "$in": [
+              "{{user.email}}"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

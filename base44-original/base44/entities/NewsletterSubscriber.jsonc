@@ -1,0 +1,77 @@
+{
+  "name": "NewsletterSubscriber",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "E-Mail-Adresse des Abonnenten"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name (optional)"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Aktives Abonnement"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "dashboard",
+        "turnier-anmeldung",
+        "admin"
+      ],
+      "default": "dashboard",
+      "description": "Herkunft der Anmeldung"
+    }
+  },
+  "required": [
+    "email"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    }
+  }
+}

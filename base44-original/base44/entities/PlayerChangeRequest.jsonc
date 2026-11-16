@@ -1,0 +1,96 @@
+{
+  "name": "PlayerChangeRequest",
+  "type": "object",
+  "properties": {
+    "player_id": {
+      "type": "string",
+      "description": "ID des betroffenen Spielers"
+    },
+    "player_name": {
+      "type": "string",
+      "description": "Aktueller Name des Spielers zum Zeitpunkt der Anfrage (f\u00fcr Anzeige)"
+    },
+    "current_number": {
+      "type": "number",
+      "description": "Aktuelle Spielernummer zum Zeitpunkt der Anfrage"
+    },
+    "requested_first_name": {
+      "type": "string",
+      "description": "Angefragter neuer Vorname"
+    },
+    "requested_last_name": {
+      "type": "string",
+      "description": "Angefragter neuer Nachname"
+    },
+    "requested_number": {
+      "type": "number",
+      "description": "Angefragte neue Spielernummer (optional, null = keine \u00c4nderung)"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Begr\u00fcndung der Anfrage"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "offen",
+        "genehmigt",
+        "abgelehnt"
+      ],
+      "default": "offen",
+      "description": "Status der Anfrage"
+    },
+    "requested_by_email": {
+      "type": "string",
+      "description": "E-Mail des Anfragenden"
+    },
+    "requested_by_name": {
+      "type": "string",
+      "description": "Name des Anfragenden"
+    },
+    "reviewed_by_email": {
+      "type": "string",
+      "description": "E-Mail des pr\u00fcfenden Admins"
+    },
+    "admin_note": {
+      "type": "string",
+      "description": "Notiz des Admins bei Genehmigung/Ablehnung"
+    }
+  },
+  "required": [
+    "player_id",
+    "requested_first_name",
+    "requested_last_name",
+    "status"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        },
+        {
+          "data.requested_by_email": "{{user.email}}"
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

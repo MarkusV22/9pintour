@@ -1,0 +1,164 @@
+{
+  "name": "TournamentRequest",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "neu",
+        "in_bearbeitung",
+        "genehmigt",
+        "abgelehnt"
+      ],
+      "default": "neu",
+      "description": "Status der Anfrage"
+    },
+    "organizer_name": {
+      "type": "string",
+      "description": "Name des Veranstalters / Vereins"
+    },
+    "organizer_email": {
+      "type": "string",
+      "description": "Kontakt-E-Mail des Veranstalters"
+    },
+    "organizer_phone": {
+      "type": "string",
+      "description": "Telefonnummer des Veranstalters"
+    },
+    "tournament_name": {
+      "type": "string",
+      "description": "Geplanter Name des Turniers"
+    },
+    "tournament_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Geplantes Startdatum"
+    },
+    "tournament_end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Geplantes Enddatum (optional)"
+    },
+    "location": {
+      "type": "string",
+      "description": "Austragungsort mit Adresse"
+    },
+    "lane_count": {
+      "type": "number",
+      "description": "Anzahl der verf\u00fcgbaren Bahnen"
+    },
+    "expected_teams": {
+      "type": "number",
+      "description": "Erwartete Anzahl Mannschaften"
+    },
+    "day_count": {
+      "type": "number",
+      "description": "Geplante Anzahl Spieltage"
+    },
+    "categories": {
+      "type": "string",
+      "description": "Geplante Kategorien (Herren, Damen, Mixed)"
+    },
+    "team_size": {
+      "type": "number",
+      "enum": [
+        1,
+        2,
+        4
+      ],
+      "default": 4,
+      "description": "Spieler pro Mannschaft (1 = Einzelturnier)"
+    },
+    "slot_duration": {
+      "type": "number",
+      "enum": [
+        60,
+        70
+      ],
+      "default": 60,
+      "description": "Dauer pro Durchgang in Minuten"
+    },
+    "description": {
+      "type": "string",
+      "description": "Weitere Informationen / Anmerkungen"
+    },
+    "admin_notes": {
+      "type": "string",
+      "description": "Interne Notizen des Admins"
+    },
+    "assigned_tier": {
+      "type": "string",
+      "enum": [
+        "Grand Slam",
+        "Masters 1000",
+        "Masters 500",
+        "Masters 250",
+        "Challenger",
+        "Competition"
+      ],
+      "description": "Zugewiesene Tierkategorie (wird vom Admin gesetzt)"
+    },
+    "co_organizer_email": {
+      "type": "string",
+      "description": "E-Mail des verkn\u00fcpften App-Nutzers als Mitveranstalter"
+    }
+  },
+  "required": [
+    "organizer_name",
+    "organizer_email",
+    "tournament_name",
+    "tournament_date",
+    "location"
+  ],
+  "rls": {
+    "create": null,
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "data.organizer_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    }
+  }
+}

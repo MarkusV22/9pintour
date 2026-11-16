@@ -1,0 +1,39 @@
+{
+  "name": "Spieler-Action-Log protokollieren",
+  "description": "Protokolliert jede \u00c4nderung an der Spieler-Datenbank (neu angelegt, ge\u00e4ndert, gel\u00f6scht) in der PlayerActionLog-Entit\u00e4t.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create",
+        "update",
+        "delete"
+      ],
+      "entity_name": "Player"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "spieler_action_log_protokollieren",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "logPlayerChange",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "logPlayerChange"
+  }
+}

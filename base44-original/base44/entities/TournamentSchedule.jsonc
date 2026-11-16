@@ -1,0 +1,90 @@
+{
+  "name": "TournamentSchedule",
+  "type": "object",
+  "properties": {
+    "tournament_id": {
+      "type": "string",
+      "description": "ID des Turniers"
+    },
+    "team_id": {
+      "type": "string",
+      "description": "ID der Mannschaft (leer bei Platzhalter)"
+    },
+    "player_id": {
+      "type": "string",
+      "description": "ID des Spielers (leer bei Platzhalter oder Slot)"
+    },
+    "player_name": {
+      "type": "string",
+      "description": "Legacy: Name des Spielers (wird nicht mehr verwendet)"
+    },
+    "is_placeholder": {
+      "type": "boolean",
+      "description": "Platzhalter-Eintrag (kein echter Spieler)",
+      "default": false
+    },
+    "placeholder_label": {
+      "type": "string",
+      "description": "Bezeichnung des Platzhalters (z.B. 'Spieler A')"
+    },
+    "start_time": {
+      "type": "string",
+      "description": "Startzeit (HH:MM)"
+    },
+    "lane": {
+      "type": "number",
+      "description": "Bahn-Nummer (1-4)"
+    },
+    "day": {
+      "type": "string",
+      "description": "Datum/Tag (YYYY-MM-DD), leer = Tag 1"
+    },
+    "venue": {
+      "type": "string",
+      "description": "Spielort-Index (als String, z.B. '0','1') bei Multi-Spielort-Turnieren. Leer = erster/ einziger Spielort."
+    }
+  },
+  "required": [
+    "tournament_id",
+    "start_time",
+    "lane"
+  ],
+  "rls": {
+    "create": null,
+    "read": null,
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    }
+  }
+}

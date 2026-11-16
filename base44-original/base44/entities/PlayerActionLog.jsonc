@@ -1,0 +1,78 @@
+{
+  "name": "PlayerActionLog",
+  "type": "object",
+  "properties": {
+    "player_id": {
+      "type": "string",
+      "description": "ID des betroffenen Spielers"
+    },
+    "player_name": {
+      "type": "string",
+      "description": "Name des Spielers zum Zeitpunkt der \u00c4nderung (Snapshot)"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "create",
+        "update",
+        "delete"
+      ],
+      "description": "Art der \u00c4nderung: create = neu angelegt, update = ge\u00e4ndert, delete = gel\u00f6scht"
+    },
+    "changed_fields": {
+      "type": "string",
+      "description": "JSON-Array der ge\u00e4nderten Feldnamen (z.B. [\"first_name\",\"number\"])"
+    },
+    "old_values": {
+      "type": "string",
+      "description": "JSON-Objekt der vorherigen Werte der ge\u00e4nderten Felder"
+    },
+    "new_values": {
+      "type": "string",
+      "description": "JSON-Objekt der neuen Werte der ge\u00e4nderten Felder"
+    },
+    "actor_id": {
+      "type": "string",
+      "description": "ID des Nutzers, der den Spieler urspr\u00fcnglich angelegt hat (created_by_id, best-effort)"
+    },
+    "actor_email": {
+      "type": "string",
+      "description": "E-Mail des zugeh\u00f6rigen Nutzers (best-effort)"
+    },
+    "actor_name": {
+      "type": "string",
+      "description": "Name des zugeh\u00f6rigen Nutzers (best-effort)"
+    }
+  },
+  "required": [
+    "player_id",
+    "action"
+  ],
+  "rls": {
+    "create": true,
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

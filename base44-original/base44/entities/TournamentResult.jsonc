@@ -1,0 +1,115 @@
+{
+  "name": "TournamentResult",
+  "type": "object",
+  "properties": {
+    "tournament_id": {
+      "type": "string",
+      "description": "ID des zugeh\u00f6rigen Turniers"
+    },
+    "player_id": {
+      "type": "string",
+      "description": "ID des Spielers (aus Player-Entity)"
+    },
+    "player_name": {
+      "type": "string",
+      "description": "Legacy: Name des Spielers (wird nicht mehr verwendet)"
+    },
+    "position": {
+      "type": "number",
+      "description": "Platzierung im Turnier (1 = Erster)"
+    },
+    "points": {
+      "type": "number",
+      "description": "Punkte f\u00fcr die Rangliste"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notizen zum Ergebnis (z.B. Kategorie)"
+    },
+    "co_organizer_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "E-Mail-Adressen der Mitveranstalter des Turniers (Denormalisiert f\u00fcr Schreibrechte)"
+    }
+  },
+  "required": [
+    "tournament_id",
+    "player_id",
+    "position"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        },
+        {
+          "data.co_organizer_emails": {
+            "$in": [
+              "{{user.email}}"
+            ]
+          }
+        }
+      ]
+    },
+    "read": null,
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        },
+        {
+          "data.co_organizer_emails": {
+            "$in": [
+              "{{user.email}}"
+            ]
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        },
+        {
+          "data.co_organizer_emails": {
+            "$in": [
+              "{{user.email}}"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

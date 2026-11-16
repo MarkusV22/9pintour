@@ -1,0 +1,31 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "description": "Rolle des Nutzers in der App",
+      "enum": [
+        "admin",
+        "turnier_admin",
+        "user"
+      ],
+      "default": "user"
+    },
+    "premium_type": {
+      "type": "string",
+      "enum": [
+        "yearly",
+        "lifetime"
+      ],
+      "description": "Werbefrei-Abonnement: yearly = j\u00e4hrliches Abo, lifetime = lebenslang"
+    },
+    "premium_expires_at": {
+      "type": "string",
+      "description": "Ablaufdatum des Werbefrei-Abos (ISO-String). Bei lifetime bleibt das Feld leer."
+    }
+  },
+  "required": [
+    "role"
+  ]
+}

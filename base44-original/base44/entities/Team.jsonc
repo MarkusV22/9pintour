@@ -1,0 +1,132 @@
+{
+  "name": "Team",
+  "type": "object",
+  "properties": {
+    "tournament_id": {
+      "type": "string",
+      "description": "ID des Turniers"
+    },
+    "name": {
+      "type": "string",
+      "description": "Name der Mannschaft"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Herren",
+        "Damen",
+        "Mixed"
+      ],
+      "description": "Kategorie der Mannschaft"
+    },
+    "player1_id": {
+      "type": "string",
+      "description": "Player-ID von Spieler 1"
+    },
+    "player2_id": {
+      "type": "string",
+      "description": "Player-ID von Spieler 2"
+    },
+    "player3_id": {
+      "type": "string",
+      "description": "Player-ID von Spieler 3"
+    },
+    "player4_id": {
+      "type": "string",
+      "description": "Player-ID von Spieler 4"
+    },
+    "player5_id": {
+      "type": "string",
+      "description": "Player-ID von Spieler 5"
+    },
+    "player6_id": {
+      "type": "string",
+      "description": "Player-ID von Spieler 6"
+    },
+    "player1": {
+      "type": "string",
+      "description": "Legacy: Name Spieler 1 (wird nicht mehr verwendet)"
+    },
+    "player2": {
+      "type": "string",
+      "description": "Legacy: Name Spieler 2 (wird nicht mehr verwendet)"
+    },
+    "player3": {
+      "type": "string",
+      "description": "Legacy: Name Spieler 3 (wird nicht mehr verwendet)"
+    },
+    "player4": {
+      "type": "string",
+      "description": "Legacy: Name Spieler 4 (wird nicht mehr verwendet)"
+    },
+    "delete_requested": {
+      "type": "boolean",
+      "default": false,
+      "description": "Mannschaft hat Abmeldung beantragt \u2013 muss vom Veranstalter best\u00e4tigt werden"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "free",
+        "pending",
+        "paid",
+        "cash"
+      ],
+      "default": "free",
+      "description": "Zahlungsstatus der Mannschaft (free = keine Zahlung n\u00f6tig, pending = ausstehend, paid = online bezahlt, cash = bar bezahlt)"
+    },
+    "paid_player_ids": {
+      "type": "string",
+      "description": "JSON-Array der Spieler-IDs, die bar bezahlt haben",
+      "default": "[]"
+    },
+    "online_paid_player_ids": {
+      "type": "string",
+      "description": "JSON-Array der Spieler-IDs, die online bezahlt haben",
+      "default": "[]"
+    }
+  },
+  "required": [
+    "tournament_id",
+    "name",
+    "category"
+  ],
+  "rls": {
+    "create": null,
+    "read": null,
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "user_condition": {
+            "role": "turnier_admin"
+          }
+        }
+      ]
+    }
+  }
+}
