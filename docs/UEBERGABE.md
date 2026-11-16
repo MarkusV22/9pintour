@@ -25,7 +25,7 @@ Eigene Daten, keine Verbindung zu 9pinfantasy. Kein Zeitdruck.
 | PlayerMerge | 7 | zusammengeführte Spieler-Duplikate |
 | PlayerChangeRequest | 2 | Änderungsanträge (genehmigt) |
 | NewsletterSubscriber | 10 | Newsletter-Abonnenten |
-| ActionLog | ? | CSV noch ausständig (hat in der App Einträge) |
+| ActionLog | 3.560 | Protokoll Ergebnis-Änderungen / Turnier abgeschlossen |
 
 Hinweis: Der Export über die Editor-Schnittstelle lieferte die geschützten Tabellen leer; maßgeblich sind die
 CSV-Exporte aus dem Base44-Dashboard (`data-base44/csv/`). Kerntabellen (Turniere, Teams, Startpläne, Ergebnisse,
@@ -114,7 +114,7 @@ Ab Platz 71: 0 Punkte. (Der `PointsTableEditor` im Admin ändert die Tabelle nur
 ## Offene Fragen an Markus
 1. ~~Domain~~ → 9pintour.at bei **IONOS** (Registrar + Nameserver ui-dns). Plan wie bei 9pinfantasy: Zone in Cloudflare anlegen, Nameserver bei IONOS auf Cloudflare umstellen (Registrar bleibt IONOS). Keine E-Mail-Postfächer auf der Domain (bestätigt). Base44-Einträge bis zur Umstellung „nur DNS“ (graue Wolke).
 2. ~~Login~~ → **beides** (Google + E-Mail/Passwort), wie 9pinfantasy; E-Mail-Nutzer bekommen Passwort-Setzen-Mail.
-3. **Leere Tabellen** → geklärt, CSV-Exporte vorhanden; noch ausständig: nur ActionLog. Player/AppSetting im CSV identisch mit API-Export.
+3. ~~Leere Tabellen~~ → geklärt, alle 15 Tabellen als CSV vorhanden (`data-base44/csv/`, nicht im Git).
 4. ~~Stripe/Werbefrei-Abo/Werbung~~ → **einbauen, aber deaktiviert** (per Einstellung einschaltbar).
 5. ~~Mails~~ → **wie bei 9pinfantasy**: vorerst aus, erst einschalten, wenn alles läuft.
 6. ~~Öffentlich~~ → **ja**, Ranglisten, Turniere, Spielerprofile ohne Login sichtbar (wie bisher).
