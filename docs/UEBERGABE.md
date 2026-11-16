@@ -49,6 +49,11 @@ Bei 8 von 11 abgeschlossenen Turnieren ergibt eine Neuberechnung exakt dasselbe.
   → Offen: neu werten?
 - 173 Altdatensätze (Teams/Startplätze/Scores/Ergebnisse) gehören zu endgültig gelöschten Turnieren → nicht übernommen.
 
+**Entscheidung 16.11.2026:** Vorerst nichts korrigieren. In der neuen App eine Admin-Seite **„Datenprüfung“** bauen, die genau
+diese Stellen zeigt (Turnier, Wertung, Platz, Spieler – mit Links), damit Markus sie dort ansehen und dann entscheiden kann:
+Spieler doppelt in einer Turnierwertung · Duplikate mit falscher Kategorie (gleicher Name, Herren/Damen) ·
+gespeicherte Wertung weicht von Neuberechnung ab (Vergleich nebeneinander, Neuwertung per Knopf).
+
 ## Rollen
 - **admin** – alles.
 - **turnier_admin** – Turniere, Startpläne, Ergebnisse, Spielerdatenbank verwalten.
