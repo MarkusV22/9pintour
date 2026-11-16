@@ -103,10 +103,10 @@ Ab Platz 71: 0 Punkte. (Der `PointsTableEditor` im Admin ändert die Tabelle nur
 
 ## Offene Fragen an Markus
 1. ~~Domain~~ → 9pintour.at bei **IONOS** (Registrar + Nameserver ui-dns). Plan wie bei 9pinfantasy: Zone in Cloudflare anlegen, Nameserver bei IONOS auf Cloudflare umstellen (Registrar bleibt IONOS). Keine E-Mail-Postfächer auf der Domain (bestätigt). Base44-Einträge bis zur Umstellung „nur DNS“ (graue Wolke).
-2. **Login**: Melden sich die 40 Nutzer per Google oder E-Mail an? (Wie bei 9pinfantasy: beides anbieten, E-Mail-Nutzer bekommen Passwort-Setzen-Mail.)
-3. **Leere Tabellen**: ActionLog, Spieler-Änderungsprotokoll, Turnieranfragen, Newsletter sind leer – stimmt das?
-4. **Stripe/Werbefrei-Abo/Werbung**: weiter betreiben, später, oder weglassen?
-5. **Newsletter & Bestätigungs-Mails**: wie bei 9pinfantasy erst einschalten, wenn alles läuft?
-6. **Öffentlich**: Sollen Ranglisten, Turniere und Spielerprofile ohne Login sichtbar sein (wie bisher)?
-7. **Saison 2024/025**: Name absichtlich so, oder Tippfehler (2024/2025)?
+2. ~~Login~~ → **beides** (Google + E-Mail/Passwort), wie 9pinfantasy; E-Mail-Nutzer bekommen Passwort-Setzen-Mail.
+3. **Leere Tabellen**: Export über die Editor-Schnittstelle war unvollständig (ActionLog hat in der App Einträge, im Export 0 – Base44-Sicherheitsregeln). → Vollständiger CSV-Export aller Tabellen aus dem Base44-Dashboard nötig.
+4. ~~Stripe/Werbefrei-Abo/Werbung~~ → **einbauen, aber deaktiviert** (per Einstellung einschaltbar).
+5. ~~Mails~~ → **wie bei 9pinfantasy**: vorerst aus, erst einschalten, wenn alles läuft.
+6. ~~Öffentlich~~ → **ja**, Ranglisten, Turniere, Spielerprofile ohne Login sichtbar (wie bisher).
+7. ~~Saison~~ → Tippfehler, beim Import auf **2024/2025** korrigieren.
 8. ~~Lochkegel~~ → entschieden (siehe Wertung).
