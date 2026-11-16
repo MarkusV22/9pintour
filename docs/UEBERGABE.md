@@ -47,10 +47,10 @@ Bilder (Turnierlogos, PDF-Logos, Banner) liegen auf `base44.app` → müssen vor
 - Pro Spieler zählt das **beste Ergebnis** über alle seine Starts im Turnier.
 - Leere Datensätze zählen nicht. **No-Show** (`{no_show:true}`): keine Platzierung, keine Punkte, zählt nicht zur Teilnehmerzahl.
   **W.O.** (`{wo:true}`): siehe Future.
-- **Lochkegel-/Hobbyspieler** (`is_hobby`, derzeit 1 Spieler) – **entschieden 16.11.2026**: bekommen ganz normal Tour-Punkte
-  und stehen in der Hauptrangliste (auch im Zwischenstand, bisher dort ausgeblendet), **zusätzlich** gibt es eine eigene
-  Hobby-Rangliste (nur `is_hobby`-Spieler, gleiche Punkte, Herren/Damen getrennt – Annahme, bitte bestätigen).
-  Die alte Einstellung `lochkegel_in_tour` entfällt.
+- **Lochkegel-/Hobbyspieler** (`is_hobby`, derzeit 1 Spieler) – **bestätigt 16.11.2026, so läuft es bereits**:
+  bekommen normal Tour-Punkte und stehen in der normalen Rangliste (keine eigene Rangliste). Im Turnier werden sie
+  **wie eine Altersklasse** zusätzlich gewertet: Hobby-Einzelwertung (Herren/Damen getrennt) und Hobby-Mannschaftswertung
+  (Teams, deren kompletter Kader aus Hobbyspielern besteht) im Zwischenstand/Ergebnis. Einstellung `lochkegel_in_tour` wird nicht genutzt → entfällt.
 - Reihung: 1. mehr Kegel, 2. mehr Abräumen, 3. weniger Fehlwürfe.
 - Gruppen: Standard nach Spieler-Kategorie (Herren/Damen); Future nach Altersklasse **und** Geschlecht.
 
