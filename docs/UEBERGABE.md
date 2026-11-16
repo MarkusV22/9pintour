@@ -102,7 +102,7 @@ Ab Platz 71: 0 Punkte. (Der `PointsTableEditor` im Admin ändert die Tabelle nur
 6. Zahlungen, Werbung, Newsletter zuletzt (oder weglassen, siehe Fragen).
 
 ## Offene Fragen an Markus
-1. ~~Domain~~ → 9pintour.at bei **IONOS** (Registrar + Nameserver ui-dns). Plan wie bei 9pinfantasy: Zone in Cloudflare anlegen, Nameserver bei IONOS auf Cloudflare umstellen (Registrar bleibt IONOS). Vorher prüfen: E-Mail-Postfächer/MX auf der Domain? Base44-Einträge bis zur Umstellung „nur DNS“ (graue Wolke).
+1. ~~Domain~~ → 9pintour.at bei **IONOS** (Registrar + Nameserver ui-dns). Plan wie bei 9pinfantasy: Zone in Cloudflare anlegen, Nameserver bei IONOS auf Cloudflare umstellen (Registrar bleibt IONOS). Keine E-Mail-Postfächer auf der Domain (bestätigt). Base44-Einträge bis zur Umstellung „nur DNS“ (graue Wolke).
 2. **Login**: Melden sich die 40 Nutzer per Google oder E-Mail an? (Wie bei 9pinfantasy: beides anbieten, E-Mail-Nutzer bekommen Passwort-Setzen-Mail.)
 3. **Leere Tabellen**: ActionLog, Spieler-Änderungsprotokoll, Turnieranfragen, Newsletter sind leer – stimmt das?
 4. **Stripe/Werbefrei-Abo/Werbung**: weiter betreiben, später, oder weglassen?
