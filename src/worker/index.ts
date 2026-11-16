@@ -5,6 +5,11 @@ import { sessionMiddleware, sameOriginWrites } from "./auth/session";
 import auth from "./routes/auth";
 import pub from "./routes/public";
 import organizer from "./routes/organizer";
+import entities from "./routes/entities";
+import entityWrites from "./routes/entityWrites";
+import functions from "./routes/functions";
+import files from "./routes/files";
+import dataCheck from "./routes/dataCheck";
 
 export type { Env } from "./env";
 
@@ -20,6 +25,11 @@ app.use("*", async (c, next) => {
 app.route("/", auth);
 app.route("/", pub);
 app.route("/", organizer);
+app.route("/", entityWrites);
+app.route("/", functions);
+app.route("/", files);
+app.route("/", dataCheck);
+app.route("/", entities);
 
 app.get("/health", (c) => c.json({ ok: true }));
 

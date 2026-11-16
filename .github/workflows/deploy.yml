@@ -22,8 +22,13 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+          cache-dependency-path: |
+            package-lock.json
+            web/package-lock.json
+      - run: npm ci && npm --prefix web ci
       - run: npm run typecheck && npm test
+      - name: Frontend bauen
+        run: npm run build
 
   deploy:
     needs: test
@@ -39,6 +44,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            web/package-lock.json
       - run: npm ci && npm --prefix web ci
       - name: Frontend bauen
         run: npm run build
