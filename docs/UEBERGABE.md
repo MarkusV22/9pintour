@@ -43,8 +43,10 @@ Bei 8 von 11 abgeschlossenen Turnieren ergibt eine Neuberechnung exakt dasselbe.
   → Offen: Duplikate entfernen und Marchfeld neu werten? (Echte Damen rücken dann vor.)
 - **Pongauer Stier 2026**: Hobbyspieler Peter Scholz wurde beim Abschluss (alte Regel) nicht gewertet; neu wäre er 27. (30 P).
   → Offen: neu werten?
-- **2. Blaufränkisch Open**: Manfred Zach hat inzwischen nur noch einen leeren Score; zusammengeführte Spieler-Duplikate
-  verschieben die Damen-Plätze 16–24 um eins (Melanie Hahn: 6 → 10 P). → Offen: neu werten?
+- **2. Blaufränkisch Open**: **Tamara Eder** steht doppelt in der Wertung (Platz 11 *und* 16, 15 + 10 P) – Folge der
+  Spieler-Zusammenführung vom 18.08.; in der Rangliste zählt sie dadurch doppelt (auch in Base44). Neu gewertet: nur Platz 11,
+  Damen ab Platz 16 rücken um eins vor (Melanie Hahn 6 → 10 P). Manfred Zach hat nur noch einen leeren Score (0 P, ohne Wirkung).
+  → Offen: neu werten?
 - 173 Altdatensätze (Teams/Startplätze/Scores/Ergebnisse) gehören zu endgültig gelöschten Turnieren → nicht übernommen.
 
 ## Rollen
