@@ -72,4 +72,6 @@ jobs:
         run: |
           node scripts/ci-secrets.mjs "$RUNNER_TEMP/secrets.json"
           npx wrangler secret bulk "$RUNNER_TEMP/secrets.json"
+          # Import-Seite sperren, sobald IMPORT_KEY in GitHub gelöscht ist
+          if [ -z "$IMPORT_KEY" ]; then npx wrangler secret delete IMPORT_KEY 2>/dev/null <<< "y" || true; fi
           rm -f "$RUNNER_TEMP/secrets.json"

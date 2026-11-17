@@ -84,3 +84,24 @@ describe("Turnier abschließen", () => {
     expect((await req("/api/tournaments/t1/finish", { method: "POST", cookie: ta })).status).toBe(200);
   });
 });
+
+describe("Datenimport /einrichtung", () => {
+  it("gesperrt ohne IMPORT_KEY, nur Datenanweisungen, Admin-Link am Ende", async () => {
+    expect((await req("/api/setup/check", { method: "POST", body: {} })).status).toBe(404);
+    env.IMPORT_KEY = "geheim";
+    const call = (path: string, body: unknown, key = "geheim") => app.request(`${ORIGIN}/api${path}`, {
+      method: "POST", headers: { "Content-Type": "application/json", Origin: ORIGIN, "X-Import-Key": key }, body: JSON.stringify(body),
+    }, env);
+    expect((await call("/setup/check", {}, "falsch")).status).toBe(403);
+    expect((await call("/setup/import/chunk", { statements: ["DROP TABLE players;"] })).status).toBe(400);
+    const ok = await call("/setup/import/chunk", { statements: [
+      "INSERT OR IGNORE INTO users (id, email, role, created_at, updated_at) VALUES ('u1', 'chef@x.at', 'admin', '2026-01-01', '2026-01-01');",
+      "INSERT OR REPLACE INTO seasons (id, name, start_date, end_date, is_active, created_at) VALUES ('s9', 'A' || char(10) || 'B', '2026-01-01', '2026-12-31', 0, '2026-01-01');",
+    ] });
+    expect(ok.status).toBe(200);
+    const fin = (await (await call("/setup/import/finish", {})).json()) as { admin_links: { link: string }[] };
+    expect(fin.admin_links).toHaveLength(1);
+    expect(fin.admin_links[0].link).toMatch(/\/passwort\?token=/);
+    expect(env.DB.raw.prepare("SELECT name FROM seasons WHERE id='s9'").get()).toEqual({ name: "A\nB" });
+  });
+});

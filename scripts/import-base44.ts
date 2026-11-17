@@ -11,22 +11,28 @@ if (!dir || !out) {
   process.exit(1);
 }
 
-const q = (v: Row[string]) => (v === null || v === undefined ? "NULL" : typeof v === "number" ? String(v) : `'${String(v).replace(/'/g, "''")}'`);
+// Werte als SQL-Literal; Zeilenumbrüche über char(10), damit jede Anweisung genau eine Zeile ist
+// (die Import-Seite /einrichtung schickt die Datei zeilenweise in Blöcken).
+const q = (v: Row[string]) => {
+  if (v === null || v === undefined) return "NULL";
+  if (typeof v === "number") return String(v);
+  const s = "'" + String(v).replace(/'/g, "''") + "'";
+  return s.replace(/\r?\n/g, "' || char(10) || '").replace(/\r/g, "");
+};
 
 const { tables, warnings } = loadBase44(dir);
-const lines: string[] = ["PRAGMA defer_foreign_keys = ON;"];
+const lines: string[] = ["-- 9pintour.at Datenimport (eine Anweisung pro Zeile)"];
 if (flags.includes("--reset")) {
+  // alles außer Konten/Sitzungen (bereits gesetzte Passwörter bleiben erhalten)
   for (const t of [...TABLE_ORDER].reverse()) if (t !== "users") lines.push(`DELETE FROM ${t};`);
 }
 for (const name of TABLE_ORDER) {
   const rows = tables[name] ?? [];
-  if (!rows.length) continue;
-  const cols = Object.keys(rows[0]);
   // Nutzer: vorhandene Konten (Passwort/Google) nicht überschreiben
   const verb = name === "users" ? "INSERT OR IGNORE" : "INSERT OR REPLACE";
-  for (let i = 0; i < rows.length; i += 50) {
-    const chunk = rows.slice(i, i + 50).map((r) => `(${cols.map((c) => q(r[c])).join(", ")})`).join(",\n  ");
-    lines.push(`${verb} INTO ${name} (${cols.join(", ")}) VALUES\n  ${chunk};`);
+  for (const r of rows) {
+    const cols = Object.keys(r);
+    lines.push(`${verb} INTO ${name} (${cols.join(", ")}) VALUES (${cols.map((c) => q(r[c])).join(", ")});`);
   }
 }
 writeFileSync(out, lines.join("\n") + "\n");

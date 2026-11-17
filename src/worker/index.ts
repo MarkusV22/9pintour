@@ -10,6 +10,7 @@ import entityWrites from "./routes/entityWrites";
 import functions from "./routes/functions";
 import files from "./routes/files";
 import dataCheck from "./routes/dataCheck";
+import setup from "./routes/setup";
 
 export type { Env } from "./env";
 
@@ -22,6 +23,7 @@ app.use("*", async (c, next) => {
   if (!c.req.path.startsWith("/api/media/")) c.header("Cache-Control", "no-store");
 });
 
+app.route("/", setup);
 app.route("/", auth);
 app.route("/", pub);
 app.route("/", organizer);

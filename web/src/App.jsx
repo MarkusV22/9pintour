@@ -37,6 +37,7 @@ import FutureRanking from '@/pages/FutureRanking';
 import FutureDashboard from '@/pages/FutureDashboard';
 import Login from '@/pages/Login';
 import DataCheck from '@/pages/DataCheck';
+import Setup from '@/pages/Setup';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -94,6 +95,7 @@ const AuthenticatedApp = () => {
       </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/passwort" element={<Login />} />
+      <Route path="/einrichtung" element={<Setup />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

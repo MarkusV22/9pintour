@@ -12,6 +12,7 @@ export interface Env {
   GOOGLE_CLIENT_SECRET?: string;
   RESEND_API_KEY?: string;
   MAIL_FROM?: string;
+  IMPORT_KEY?: string;               // nur für den einmaligen Datenimport (/einrichtung), danach löschen
   STRIPE_SECRET_KEY?: string;        // vorbereitet, Online-Zahlung standardmäßig aus
   STRIPE_WEBHOOK_SECRET?: string;
 }
