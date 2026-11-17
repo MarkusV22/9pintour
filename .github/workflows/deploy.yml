@@ -50,12 +50,18 @@ jobs:
       - run: npm ci && npm --prefix web ci
       - name: Frontend bauen
         run: npm run build
-      - name: Account-ID prüfen
+      - name: Account-ID und Token prüfen
         # Toleriert versehentlich mitkopierte Leerzeichen oder die ganze Dashboard-Adresse
         run: |
           ID=$(printf '%s' "$CLOUDFLARE_ACCOUNT_ID" | tr 'A-F' 'a-f' | grep -oE '[0-9a-f]{32}' | head -1 || true)
           if [ -z "$ID" ]; then echo "::error::CLOUDFLARE_ACCOUNT_ID enthält keine gültige Account-ID (32 Zeichen, 0-9 und a-f)."; exit 1; fi
           echo "CLOUDFLARE_ACCOUNT_ID=$ID" >> "$GITHUB_ENV"
+          # Token: Leerzeichen/Zeilenumbrüche vom Kopieren entfernen
+          TOKEN=$(printf '%s' "$CLOUDFLARE_API_TOKEN" | tr -d '[:space:]')
+          echo "::add-mask::$TOKEN"
+          echo "CLOUDFLARE_API_TOKEN=$TOKEN" >> "$GITHUB_ENV"
+          # Token prüfen (zeigt nur gültig/ungültig)
+          curl -s -H "Authorization: Bearer $TOKEN" https://api.cloudflare.com/client/v4/user/tokens/verify | grep -o '"status":"[a-z]*"' || echo "Token-Prüfung: keine Antwort"
       - name: Cloudflare-Ressourcen vorbereiten
         run: node scripts/ci-provision.mjs
       - name: Datenbank-Schema aktualisieren
