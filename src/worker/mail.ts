@@ -37,7 +37,7 @@ export async function sendMailBatch(env: Env, mails: Mail[]): Promise<"sent" | "
 }
 
 const fromAddress = (env: Env) => env.MAIL_FROM || "9-Pin Tour <noreply@9pintour.at>";
-export const CONTACT_EMAIL = "9pintour.info@gmail.com";
+export const CONTACT_EMAIL = "vsetecka.markus@gmail.com";
 
 export function passwordMail(link: string, purpose: "set_password" | "reset_password", hoursValid: number): Omit<Mail, "to"> {
   const intro = purpose === "set_password"
@@ -50,24 +50,29 @@ export function passwordMail(link: string, purpose: "set_password" | "reset_pass
   };
 }
 
-/** Umzugs-Mail an alle, die sich in der neuen App noch nicht angemeldet haben (Text vor dem Versand abstimmen) */
+/** Umzugs-Mail an alle, die sich in der neuen App noch nicht angemeldet haben */
 export function migrationMail(appUrl: string, link: string, hoursValid: number): Omit<Mail, "to"> {
   const days = Math.round(hoursValid / 24);
   return {
-    subject: "9pintour.at ist umgezogen – bitte kurz neu anmelden",
+    subject: "9pintour.at ist umgezogen – bitte einmal neu anmelden",
     reply_to: CONTACT_EMAIL,
     text: `Servus!
 
-die 9-Pin Tour ist umgezogen und läuft ab sofort auf einer neuen Plattform. Turniere, Startpläne, Ergebnisse, Ranglisten und dein Spielerprofil sind alle mitgekommen.
+die 9-Pin Tour hat ein neues Zuhause: 9pintour.at läuft ab sofort auf einer eigenen, schnelleren Plattform. Alle Turniere, Startpläne, Ergebnisse, Ranglisten und dein Spielerprofil sind mitgekommen – es fehlt nichts.
 
-SO KOMMST DU WIEDER REIN
-• Mit Google: auf ${appUrl} „Mit Google anmelden“ wählen.
-• Mit E-Mail: lege bitte einmalig ein neues Passwort fest. Dein persönlicher Link (${days} Tage gültig):
+Weil die Anmeldung neu ist, musst du dich einmal neu anmelden:
+
+• MIT GOOGLE: Auf ${appUrl} „Mit Google anmelden“ wählen – fertig.
+• MIT E-MAIL: Lege einmalig ein neues Passwort fest. Dein persönlicher Link (${days} Tage gültig):
   ${link}
 
-Fragen oder Probleme? Antworte einfach auf diese Mail.
+Verwende dieselbe E-Mail-Adresse wie bisher, dann ist alles wie gewohnt mit deinem Konto und deinem Spielerprofil verknüpft.
+
+Falls du die App auf dem Handy-Startbildschirm hattest: altes Symbol löschen und ${appUrl} neu hinzufügen.
+
+Fragen oder etwas sieht anders aus als gewohnt? Antworte einfach auf diese Mail.
 
 Gut Holz!
-9-Pin Tour`,
+Markus – 9pintour.at`,
   };
 }

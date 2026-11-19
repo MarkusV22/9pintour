@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 
 const tools = [
+  { to: '/umzugs-mail', icon: Mail, label: 'Umzugs-Mail', desc: 'Passwort-Links an alle Nutzer nach dem Umzug' },
   { to: '/datenpruefung', icon: SearchCheck, label: 'Datenprüfung', desc: 'Doppelte Wertungen, Duplikate, Abweichungen bei Neuberechnung' },
   { to: '/players', icon: Users, label: 'Spieler', desc: 'Spielerprofile verwalten, CSV-Import, Zuordnungen' },
   { to: '/seasons', icon: CalendarDays, label: 'Saison-Verwaltung', desc: 'Saisons anlegen und aktivieren' },

@@ -38,6 +38,7 @@ import FutureDashboard from '@/pages/FutureDashboard';
 import Login from '@/pages/Login';
 import DataCheck from '@/pages/DataCheck';
 import Setup from '@/pages/Setup';
+import MigrationMailAdmin from '@/pages/MigrationMailAdmin';
 import { Impressum, Datenschutz, Nutzungsbedingungen } from '@/pages/Legal';
 
 const AuthenticatedApp = () => {
@@ -92,6 +93,7 @@ const AuthenticatedApp = () => {
         <Route path="/action-log" element={<ActionLogAdmin />} />
         <Route path="/player-action-log" element={<PlayerActionLogAdmin />} />
         <Route path="/datenpruefung" element={<DataCheck />} />
+        <Route path="/umzugs-mail" element={<MigrationMailAdmin />} />
         <Route path="/impressum" element={<Impressum />} />
         <Route path="/datenschutz" element={<Datenschutz />} />
         <Route path="/nutzungsbedingungen" element={<Nutzungsbedingungen />} />
