@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 
 const OWNER = {
   name: 'Markus Vsetecka',
-  street: 'Georg Donberger-Gasse 1/11',
-  city: '2460 Bruck an der Leitha',
+  city: 'Bruck an der Leitha',
   country: 'Österreich',
   email: 'vsetecka.markus@gmail.com',
 };
@@ -22,12 +21,12 @@ function Page({ title, children }) {
 }
 
 const Mail = () => <a href={`mailto:${OWNER.email}`}>{OWNER.email}</a>;
-const Address = () => (<>{OWNER.name}<br />{OWNER.street}<br />{OWNER.city}<br />{OWNER.country}</>);
+const Address = () => (<>{OWNER.name}<br />{OWNER.city}, {OWNER.country}</>);
 
 export function Impressum() {
   return (
     <Page title="Impressum">
-      <p className="text-muted-foreground">Angaben gemäß § 5 E-Commerce-Gesetz und Offenlegung gemäß § 25 Mediengesetz</p>
+      <p className="text-muted-foreground">Offenlegung gemäß § 25 Mediengesetz</p>
       <h2>Medieninhaber und Betreiber</h2>
       <p><Address /></p>
       <h2>Kontakt</h2>
