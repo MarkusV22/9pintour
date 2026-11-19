@@ -4,8 +4,8 @@
   "main": "src/worker/index.ts",
   "compatibility_date": "2026-11-01",
   "compatibility_flags": ["nodejs_compat"],
-  // Eigene Domain erst bei der Umstellung eintragen (Zone 9pintour.at muss dann im selben Cloudflare-Konto liegen):
-  // "routes": [{ "pattern": "9pintour.at", "custom_domain": true }, { "pattern": "www.9pintour.at", "custom_domain": true }],
+  // Eigene Domain (Umstellung von Base44 am 19.11.2026)
+  "routes": [{ "pattern": "9pintour.at", "custom_domain": true }, { "pattern": "www.9pintour.at", "custom_domain": true }],
   "workers_dev": true,
   // Frontend (Vite-Build) wird vom selben Worker ausgeliefert; unbekannte Pfade → index.html
   "assets": {
@@ -25,7 +25,7 @@
     { "binding": "MEDIA", "bucket_name": "9pintour-media" }
   ],
   "vars": {
-    "APP_URL": "",
+    "APP_URL": "https://9pintour.at",
     // Newsletter/Bestätigungs-Mails erst einschalten, wenn alles läuft (Konto-Mails gehen immer)
     "EMAILS_ENABLED": "false"
   },
