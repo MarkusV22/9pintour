@@ -142,3 +142,29 @@ describe("Funktionen", () => {
     expect(await json(await req("/api/functions/getNewsletterStatus", { body: {}, cookie: u }))).toEqual({ subscribed: true, is_active: false });
   });
 });
+
+describe("Bilder von Base44 übernehmen", () => {
+  it("kopiert nach R2 und stellt Verweise um (gleiche Adresse nur einmal)", async () => {
+    const url = "https://base44.app/api/apps/x/files/mp/public/x/logo.png";
+    env.DB.raw.prepare("UPDATE tournaments SET logo_url = ?").run(url);
+    insert("app_settings", { key: "pdf_logo_tour", value: url, updated_at: NOW });
+    const store = new Map<string, ArrayBuffer>();
+    env.MEDIA = { put: async (k: string, v: ArrayBuffer) => { store.set(k, v); } } as unknown as R2Bucket;
+    const realFetch = globalThis.fetch;
+    let calls = 0;
+    globalThis.fetch = (async () => { calls++; return new Response(new Uint8Array([1, 2, 3]), { headers: { "content-type": "image/png" } }); }) as typeof fetch;
+    try {
+      const u = await login("u@x.at");
+      expect((await req("/api/admin/media-migration", { body: {}, cookie: u })).status).toBe(403);
+      const a = await login("admin@x.at", "admin");
+      expect(await json(await req("/api/admin/media-migration", { cookie: a }))).toEqual({ pending: 3 });
+      expect(await json(await req("/api/admin/media-migration", { body: {}, cookie: a }))).toMatchObject({ copied: 1, failed: [], pending: 0 });
+      expect(calls).toBe(1);
+      const logos = env.DB.raw.prepare("SELECT DISTINCT logo_url FROM tournaments").all() as { logo_url: string }[];
+      expect(logos).toHaveLength(1);
+      expect(logos[0].logo_url).toMatch(/^\/api\/media\/base44\/.+\.png$/);
+      expect(env.DB.raw.prepare("SELECT value FROM app_settings WHERE key='pdf_logo_tour'").get()).toEqual({ value: logos[0].logo_url });
+      expect(store.size).toBe(1);
+    } finally { globalThis.fetch = realFetch; }
+  });
+});

@@ -11,6 +11,7 @@ import functions from "./routes/functions";
 import files from "./routes/files";
 import dataCheck from "./routes/dataCheck";
 import setup from "./routes/setup";
+import media from "./routes/media";
 
 export type { Env } from "./env";
 
@@ -31,6 +32,7 @@ app.route("/", entityWrites);
 app.route("/", functions);
 app.route("/", files);
 app.route("/", dataCheck);
+app.route("/", media);
 app.route("/", entities);
 
 app.get("/health", (c) => c.json({ ok: true }));

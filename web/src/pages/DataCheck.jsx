@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { SearchCheck, Copy, Users, Calculator, ExternalLink, CheckCircle2, Loader2, ArrowRight } from 'lucide-react';
+import { SearchCheck, Copy, Users, Calculator, ExternalLink, CheckCircle2, Loader2, ArrowRight, ImageDown } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { isTurnierAdmin, isAdmin } from '@/lib/roles';
 import { api } from '@/api/base44Client';
@@ -29,6 +29,36 @@ function Section({ icon: Icon, title, count, hint, children }) {
 
 const TLink = ({ id, name }) => <Link to={`/tournaments/${id}`} className="font-semibold text-primary hover:underline inline-flex items-center gap-1">{name}<ExternalLink className="w-3 h-3" /></Link>;
 const PLink = ({ id, name }) => <Link to={`/stats?id=${id}`} className="font-medium hover:underline">{name}</Link>;
+
+function MediaMigration() {
+  const { data, refetch } = useQuery({ queryKey: ['media-migration'], queryFn: () => api('/admin/media-migration') });
+  const [running, setRunning] = useState(false);
+  const [log, setLog] = useState({ copied: 0, failed: [] });
+  const run = async () => {
+    setRunning(true);
+    let copied = 0; let failed = [];
+    try {
+      for (let i = 0; i < 50; i++) {
+        const r = await api('/admin/media-migration', { method: 'POST', body: {} });
+        copied += r.copied; failed = r.failed;
+        setLog({ copied, failed });
+        if (!r.pending || r.copied === 0) break;
+      }
+    } catch (e) { window.alert(e.message); }
+    setRunning(false);
+    refetch();
+  };
+  return (
+    <Section icon={ImageDown} title="Bilder noch bei Base44" count={data?.pending ?? 0}
+      hint="Turnierlogos, Spielerfotos, PDF-Logos und Banner, die noch von base44.app geladen werden. Vor dem Abschalten von Base44 in den eigenen Speicher kopieren.">
+      <div className="bg-card border border-border rounded-xl p-4 flex flex-wrap items-center gap-3 text-sm">
+        <Button size="sm" onClick={run} disabled={running} className="gap-2">{running && <Loader2 className="w-3.5 h-3.5 animate-spin" />}Jetzt übernehmen</Button>
+        {(log.copied > 0 || log.failed.length > 0) && <span className="text-muted-foreground">{log.copied} kopiert{log.failed.length ? `, ${log.failed.length} fehlgeschlagen` : ''}</span>}
+        {log.failed.map((f) => <div key={f.url} className="w-full text-xs text-destructive break-all">{f.url}: {f.error}</div>)}
+      </div>
+    </Section>
+  );
+}
 
 export default function DataCheck() {
   const { user } = useAuth();
@@ -71,6 +101,8 @@ export default function DataCheck() {
 
       {isLoading && <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="w-4 h-4 animate-spin" />Prüfe Daten …</div>}
       {error && <div className="text-destructive">{error.message}</div>}
+
+      {isAdmin(user) && <MediaMigration />}
 
       {data && (
         <>
