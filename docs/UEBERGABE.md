@@ -158,3 +158,9 @@ neu gewertet, 3 Damen-Duplikate entfernt) und Startplan-Änderung NW CUP 3 in Ba
 6. ~~Öffentlich~~ → **ja**, Ranglisten, Turniere, Spielerprofile ohne Login sichtbar (wie bisher).
 7. ~~Saison~~ → Tippfehler, beim Import auf **2024/2025** korrigieren.
 8. ~~Lochkegel~~ → entschieden (siehe Wertung).
+
+### Stand 19.11.2026, 18:15
+- Finaler Import (Base44-Export 19.11., 17:57) eingespielt: 41 Konten, 1903 Spieler, 18 Turniere, 324 Mannschaften, 1425 Ergebnisse, 1107 Wertungen.
+- Alte DNS-Einträge (A → 216.24.57.1, CNAME www → base44.onrender.com) gelöscht; 9pintour.at und www.9pintour.at als Custom Domain am Worker, APP_URL = https://9pintour.at.
+- Google OAuth: Redirect https://9pintour.at/api/auth/google/callback wird akzeptiert.
+- Offen: Korrekturen in Datenprüfung, Bilder übernehmen, Umzugs-Mail, IMPORT_KEY löschen, Base44 kündigen.
