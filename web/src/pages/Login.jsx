@@ -22,6 +22,11 @@ function Shell({ title, subtitle, children }) {
         </div>
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4">{children}</div>
         <p className="text-center text-sm"><Link to="/" className="text-primary hover:underline">← Zurück zur 9-Pin Tour</Link></p>
+        <p className="text-center text-xs text-muted-foreground space-x-3">
+          <Link to="/impressum" className="hover:underline">Impressum</Link>
+          <Link to="/datenschutz" className="hover:underline">Datenschutz</Link>
+          <Link to="/nutzungsbedingungen" className="hover:underline">Nutzungsbedingungen</Link>
+        </p>
       </div>
     </div>
   );
@@ -90,6 +95,9 @@ export default function Login() {
         )}
         {mode !== "forgot" && (
           <div className="space-y-1.5"><Label htmlFor="pw">Passwort</Label><Input id="pw" type="password" required minLength={mode === "login" ? undefined : 8} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === "login" ? "current-password" : "new-password"} /></div>
+        )}
+        {mode === "register" && (
+          <p className="text-xs text-muted-foreground">Mit der Registrierung akzeptierst du die <Link to="/nutzungsbedingungen" className="text-primary hover:underline">Nutzungsbedingungen</Link>. Infos zum Umgang mit deinen Daten: <Link to="/datenschutz" className="text-primary hover:underline">Datenschutzerklärung</Link>.</p>
         )}
         {error && <p className="text-sm text-destructive">{error}</p>}
         {info && <p className="text-sm text-green-700">{info}</p>}

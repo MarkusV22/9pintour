@@ -211,6 +211,11 @@ export default function Layout() {
       )}>
         <ProfileLinkBanner profile={myProfile} loading={profileLoading} />
         <Outlet />
+        <footer className="px-4 md:px-8 py-6 text-xs text-muted-foreground flex flex-wrap gap-x-4 gap-y-1 justify-center">
+          <Link to="/impressum" className="hover:text-foreground">Impressum</Link>
+          <Link to="/datenschutz" className="hover:text-foreground">Datenschutz</Link>
+          <Link to="/nutzungsbedingungen" className="hover:text-foreground">Nutzungsbedingungen</Link>
+        </footer>
       </main>
 
       {/* ── Mobile Bottom Nav ── */}
