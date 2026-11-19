@@ -124,7 +124,7 @@ Ab Platz 71: 0 Punkte. (Der `PointsTableEditor` im Admin ändert die Tabelle nur
 - **Action-Log**: Änderungen an Ergebnissen und Turnierstatus.
 
 ## Stand
-- 17.11.2026: Testadresse **https://9pintour.vsetecka-markus.workers.dev** online (Cloudflare Worker + D1 `9pintour` + R2 `9pintour-media`).
+- 17.11.2026: Testadresse **https://9pintour.kegeln.workers.dev** online (Cloudflare Worker + D1 `9pintour` + R2 `9pintour-media`).
   Import über /einrichtung: 41 Konten, 1.903 Spieler, 18 Turniere, 324 Mannschaften, 1.425 Ergebnisse, 1.107 Wertungen.
 - Offen: Bilder von base44.app nach R2, Google-Login (OAuth-Client), Domain 9pintour.at (IONOS → Cloudflare-Nameserver),
   Umzugs-Mail an die Nutzer, Base44 kündigen.
