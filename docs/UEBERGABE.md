@@ -129,6 +129,18 @@ Ab Platz 71: 0 Punkte. (Der `PointsTableEditor` im Admin ändert die Tabelle nur
 - Offen: Bilder von base44.app nach R2, Google-Login (OAuth-Client), Domain 9pintour.at (IONOS → Cloudflare-Nameserver),
   Umzugs-Mail an die Nutzer, Base44 kündigen.
 
+## Abgleich Base44 ↔ Testadresse (19.11.2026)
+14 von 18 Turnieren identisch. Unterschiede nur durch Korrekturen in der Testversion (Pongauer Stier, Marchfeld, Blaufränkisch
+neu gewertet, 3 Damen-Duplikate entfernt) und Startplan-Änderung NW CUP 3 in Base44 nach dem Export.
+
+## Checkliste Umstellungstag
+1. In Base44 nichts mehr eintragen lassen.
+2. CSV-Export aller 15 Tabellen + User aus dem Base44-Dashboard → `data-base44/csv/`.
+3. `IMPORT_KEY` in GitHub setzen, Import-SQL mit `--reset` erzeugen, über /einrichtung einspielen (Konten mit Passwort bleiben).
+4. Datenprüfung: Damen-Duplikate zusammenführen, Pongauer Stier / Marchfeld / Blaufränkisch neu werten, Bilder übernehmen.
+5. Domain 9pintour.at auf den Worker (routes in wrangler.jsonc, APP_URL), Google-Redirect-URI ergänzen.
+6. Umzugs-Mail an alle Nutzer (Resend), `IMPORT_KEY` löschen.
+
 ## Vorschlag Vorgehen
 1. Gerüst von 9pinfantasy übernehmen (Login Google + E-Mail/Passwort, Sessions, Deploy, Import-Skript).
 2. Schema + Import aus `data-base44/` mit Abgleich (Ergebnisse/Ranglisten müssen 1:1 gleich sein).
