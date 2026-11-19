@@ -58,13 +58,13 @@ export function migrationMail(appUrl: string, link: string, hoursValid: number):
     reply_to: CONTACT_EMAIL,
     text: `Servus!
 
-die 9-Pin Tour hat ein neues Zuhause: 9pintour.at läuft ab sofort auf einer eigenen, schnelleren Plattform. Alle Turniere, Startpläne, Ergebnisse, Ranglisten und dein Spielerprofil sind mitgekommen – es fehlt nichts.
+die 9-Pin Tour hat ein neues Zuhause: 9pintour.at läuft ab sofort auf einer eigenen, schnelleren Plattform. Alle Turniere, Startpläne, Ergebnisse, Ranglisten und dein Spielerprofil sind mitgekommen, es fehlt nichts.
 
 Weil die Anmeldung neu ist, musst du dich einmal neu anmelden:
 
-• MIT GOOGLE: Auf ${appUrl} „Mit Google anmelden“ wählen – fertig.
+• MIT GOOGLE: Auf ${appUrl} „Mit Google anmelden“ wählen, fertig.
 • MIT E-MAIL: Lege einmalig ein neues Passwort fest. Dein persönlicher Link (${days} Tage gültig):
-  ${link}
+ ${link}
 
 Verwende dieselbe E-Mail-Adresse wie bisher, dann ist alles wie gewohnt mit deinem Konto und deinem Spielerprofil verknüpft.
 
