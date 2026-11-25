@@ -39,7 +39,7 @@ export default function TournamentEditDialog({ open, onOpenChange, tournament, i
   const playerSearchRef = useRef(null);
 
   // Spieler mit verknüpftem Konto + geschützte Mitveranstalter (eigener Endpunkt, auch für Mitveranstalter ohne Admin-Rechte)
-  const { data: coOptions } = useQuery({
+  const { data: coOptions, error: coOptionsError, isLoading: coOptionsLoading } = useQuery({
     queryKey: ['co-organizer-options', tournament?.id],
     queryFn: () => api(`/tournaments/${encodeURIComponent(tournament.id)}/co-organizer-options`),
     enabled: open && !!tournament?.id,
@@ -654,7 +654,9 @@ export default function TournamentEditDialog({ open, onOpenChange, tournament, i
               )}
               {showPlayerSearch && playerSearch.trim().length >= 1 && filteredPlayerSuggestions.length === 0 && (
                 <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-md px-3 py-2 text-xs text-muted-foreground">
-                  Kein Spieler mit verknüpftem Konto gefunden
+                  {coOptionsError ? `Spielerliste konnte nicht geladen werden: ${coOptionsError.message}`
+                    : coOptionsLoading ? 'Spielerliste wird geladen…'
+                    : 'Kein Spieler mit verknüpftem Konto gefunden'}
                 </div>
               )}
             </div>
