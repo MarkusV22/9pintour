@@ -1,71 +1,34 @@
+// Mitveranstalter einladen: verknüpfter Spieler, Spieler ohne Konto (wird mit der E-Mail verknüpft) oder nur E-Mail.
+// Alles läuft serverseitig über /tournaments/:id/co-organizers/invite (Liste speichern, ggf. verknüpfen, Einladungs-Mail).
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { base44 } from '@/api/base44Client';
-import { CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
-import { useQueryClient } from '@tanstack/react-query';
+import { api } from '@/api/base44Client';
+import { CheckCircle2, Loader2, AlertCircle, UserPlus } from 'lucide-react';
 
-export default function InviteCoOrganizerDialog({ open, onOpenChange, email, tournament, onConfirm, existingPlayer: knownPlayer = null }) {
-  const queryClient = useQueryClient();
+const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || '').trim());
+const playerName = (p) => p?.name || `${p?.first_name || ''} ${p?.last_name || ''}`.trim();
+
+export default function InviteCoOrganizerDialog({ open, onOpenChange, tournament, player = null, email: initialEmail = '', onDone }) {
+  const linked = !!player?.user_email;
+  const [email, setEmail] = useState(linked ? player.user_email : initialEmail);
   const [sending, setSending] = useState(false);
-  const [done, setDone] = useState(false);
-  const [newPlayer, setNewPlayer] = useState({ first_name: '', last_name: '', category: 'Herren' });
-
-  const cachedPlayers = queryClient.getQueryData(['players']) || [];
-  const existingPlayer = knownPlayer || cachedPlayers.find(p => p.user_email === email) || null;
-
-  const newPlayerValid = !existingPlayer && newPlayer.first_name.trim() && newPlayer.last_name.trim();
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState('');
 
   const handleConfirm = async () => {
-    setSending(true);
+    setSending(true); setError('');
     try {
-      // Create player profile if no existing one
-      if (!existingPlayer && newPlayer.first_name.trim() && newPlayer.last_name.trim()) {
-        const fullName = `${newPlayer.first_name.trim()} ${newPlayer.last_name.trim()}`;
-        await base44.entities.Player.create({
-          first_name: newPlayer.first_name.trim(),
-          last_name: newPlayer.last_name.trim(),
-          name: fullName,
-          category: newPlayer.category,
-          user_email: email,
-        });
-        queryClient.invalidateQueries({ queryKey: ['players'] });
-      }
-
-      // Invite as regular app user; tournament-specific admin rights are granted via co_organizer_emails
-      try { await base44.users.inviteUser(email, 'user'); } catch { /* already registered */ }
-
-      // Send invitation email
-      const tournamentUrl = `${window.location.origin}/tournaments/${tournament.id}`;
-      await base44.integrations.Core.SendEmail({
-        to: email,
-        subject: `Einladung als Mitveranstalter: ${tournament.name}`,
-        body: `Hallo,
-
-du wurdest als Mitveranstalter zum Turnier „${tournament.name}" eingeladen.
-
-${tournament.date ? `Datum: ${new Date(tournament.date).toLocaleDateString('de-AT')}` : ''}
-${tournament.location ? `Ort: ${tournament.location}` : ''}
-
-Als Mitveranstalter kannst du den Startplan bearbeiten, Ergebnisse eintragen und Spieler anlegen.
-
-Zum Turnier: ${tournamentUrl}
-
-Bitte melde dich mit dieser E-Mail-Adresse an, um Zugriff zu erhalten.
-
-Viel Erfolg!`,
+      const r = await api(`/tournaments/${encodeURIComponent(tournament.id)}/co-organizers/invite`, {
+        method: 'POST',
+        body: { email: email.trim(), player_id: player && !linked ? player.id : undefined },
       });
-
-      setDone(true);
-      setTimeout(() => {
-        setDone(false);
-        onConfirm(email);
-        onOpenChange(false);
-      }, 1500);
+      setResult(r);
+      onDone?.(r, email.trim());
     } catch (err) {
-      alert(`Fehler beim Senden der Einladung: ${err?.message || 'Unbekannter Fehler'}`);
+      setError(err?.message || 'Unbekannter Fehler');
     } finally {
       setSending(false);
     }
@@ -78,59 +41,72 @@ Viel Erfolg!`,
           <DialogTitle>Mitveranstalter einladen</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="bg-muted/40 rounded-xl px-4 py-2.5 text-sm text-foreground font-medium">
-            {email}
+        {result ? (
+          <div className="space-y-3">
+            <div className="flex items-start gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2.5 text-sm text-green-800">
+              <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" />
+              <div>
+                <strong>{result.player?.name || email}</strong> ist jetzt Mitveranstalter.
+                {result.mail === 'sent' && <> Eine Einladung wurde an {email} geschickt.</>}
+                {!result.registered && <> Sobald sich die Person mit dieser E-Mail-Adresse registriert, hat sie Zugriff.</>}
+              </div>
+            </div>
+            {result.mail !== 'sent' && (
+              <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 text-xs text-amber-800">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                Die Einladungs-Mail konnte nicht verschickt werden – bitte gib der Person selbst Bescheid, dass sie sich auf 9pintour.at mit {email} anmelden/registrieren soll.
+              </div>
+            )}
           </div>
+        ) : (
+          <div className="space-y-4">
+            {player && (
+              <div className="bg-muted/40 rounded-xl px-4 py-2.5 text-sm">
+                <div className="font-medium">{playerName(player)}</div>
+                {player.club && <div className="text-xs text-muted-foreground">{player.club}</div>}
+              </div>
+            )}
 
-          <p className="text-sm text-muted-foreground">
-            Diese Person erhält Verwaltungsrechte für das Turnier und kann Startplan sowie Ergebnisse bearbeiten.
-          </p>
+            {linked ? (
+              <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2 text-xs text-green-700">
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                Hat bereits ein Konto ({player.user_email}).
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                <Label>E-Mail-Adresse *</Label>
+                <Input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="name@beispiel.at" autoFocus />
+                <p className="text-xs text-muted-foreground">
+                  {player
+                    ? 'Noch kein Konto. Die Person bekommt eine Einladung; wenn sie sich mit dieser Adresse registriert, wird ihr Spielerprofil automatisch verbunden.'
+                    : 'Die Person bekommt eine Einladung und hat Zugriff, sobald sie sich mit dieser Adresse registriert. Steht sie in der Spielerdatenbank, wähle sie besser oben in der Suche aus.'}
+                </p>
+              </div>
+            )}
 
-          {existingPlayer ? (
-            <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2 text-xs text-green-700">
-              <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-              Spielerprofil gefunden: <strong>{existingPlayer.name || `${existingPlayer.first_name} ${existingPlayer.last_name}`}</strong>
-            </div>
-          ) : (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 space-y-3">
-              <div className="flex items-start gap-2 text-amber-800">
-                <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <p className="text-sm font-medium">Kein Spielerprofil gefunden – jetzt anlegen:</p>
+            <p className="text-sm text-muted-foreground">
+              Mitveranstalter können Startplan und Ergebnisse dieses Turniers verwalten und weitere Mitveranstalter einladen.
+            </p>
+
+            {error && (
+              <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2 text-xs text-red-700">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <Label className="text-xs">Vorname *</Label>
-                  <Input value={newPlayer.first_name} onChange={e => setNewPlayer(p => ({ ...p, first_name: e.target.value }))} placeholder="Max" className="h-8 text-sm" />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Nachname *</Label>
-                  <Input value={newPlayer.last_name} onChange={e => setNewPlayer(p => ({ ...p, last_name: e.target.value }))} placeholder="Mustermann" className="h-8 text-sm" />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                {['Herren', 'Damen'].map(cat => (
-                  <button key={cat} type="button" onClick={() => setNewPlayer(p => ({ ...p, category: cat }))}
-                    className={`flex-1 py-1.5 rounded-lg border-2 text-xs font-bold transition-all ${newPlayer.category === cat ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/50'}`}>
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Abbrechen</Button>
-          <Button onClick={handleConfirm} disabled={sending || done || (!existingPlayer && !newPlayerValid)} className="gap-2">
-            {done ? (
-              <><CheckCircle2 className="w-4 h-4" /> Einladung gesendet!</>
-            ) : sending ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Wird gesendet...</>
-            ) : (
-              'Einladen & speichern'
-            )}
-          </Button>
+          {result ? (
+            <Button type="button" onClick={() => onOpenChange(false)}>Schließen</Button>
+          ) : (
+            <>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Abbrechen</Button>
+              <Button onClick={handleConfirm} disabled={sending || !isEmail(email)} className="gap-2">
+                {sending ? <><Loader2 className="w-4 h-4 animate-spin" /> Wird gesendet...</> : <><UserPlus className="w-4 h-4" /> Einladen</>}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

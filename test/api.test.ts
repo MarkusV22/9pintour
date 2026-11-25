@@ -141,3 +141,32 @@ describe("Mitveranstalter verwalten", () => {
     expect(chef).toBeTruthy();
   });
 });
+
+describe("Mitveranstalter einladen", () => {
+  const invite = (cookie: string, body: unknown) => req("/api/tournaments/t1/co-organizers/invite", { cookie, body });
+  const list = () => JSON.parse((env.DB.raw.prepare("SELECT co_organizer_emails AS c FROM tournaments WHERE id='t1'").get() as { c: string }).c);
+
+  it("Spieler ohne Konto wird verknüpft, E-Mail ohne Spieler nur eingetragen; nur für Veranstalter", async () => {
+    insert("players", { id: "p9", name: "Neu Ohne", category: "Herren", created_at: NOW, updated_at: NOW });
+    const co = await login("veranstalter@x.at");
+    expect((await invite(await login("fremd@x.at"), { email: "a@x.at" })).status).toBe(403);
+    expect((await invite(co, { email: "kaputt" })).status).toBe(422);
+
+    const r = (await (await invite(co, { email: "Neu@x.at", player_id: "p9" })).json()) as { registered: boolean; player: { name: string } };
+    expect(r.registered).toBe(false);
+    expect(r.player.name).toBe("Neu Ohne");
+    expect((env.DB.raw.prepare("SELECT user_email FROM players WHERE id='p9'").get() as { user_email: string }).user_email).toBe("Neu@x.at");
+    expect(list()).toEqual(["veranstalter@x.at", "Neu@x.at"]);
+
+    // bereits verknüpfter Spieler kann nicht umgehängt werden
+    expect((await invite(co, { email: "anders@x.at", player_id: "p1" })).status).toBe(409);
+    // nur E-Mail, doppelt eintragen ändert nichts
+    expect((await invite(co, { email: "extern@x.at" })).status).toBe(200);
+    expect((await invite(co, { email: "EXTERN@x.at" })).status).toBe(200);
+    expect(list()).toEqual(["veranstalter@x.at", "Neu@x.at", "extern@x.at"]);
+
+    // nach Registrierung ist die eingeladene Person Veranstalter
+    const neu = await login("neu@x.at");
+    expect((await req("/api/tournaments/t1/co-organizer-options", { cookie: neu })).status).toBe(200);
+  });
+});

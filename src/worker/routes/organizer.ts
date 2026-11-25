@@ -6,6 +6,7 @@ import { newId } from "../auth/crypto";
 import { coOrganizerEmails, isTournamentOrganizer, protectedCoOrganizers } from "../../rules/roles";
 import { generateResultRecords } from "../../rules/results";
 import { loadPlans, loadPlayers, loadScores } from "../services/data";
+import { sendMail } from "../mail";
 
 const org = new Hono<AppEnv>();
 
@@ -38,10 +39,67 @@ org.get("/tournaments/:id/co-organizer-options", requireUser, async (c) => {
   const t = await organizerTournament(c);
   const db = c.env.DB;
   const [{ results: players }, creator] = await Promise.all([
-    db.prepare("SELECT id, name, first_name, last_name, user_email FROM players WHERE user_email IS NOT NULL AND user_email <> '' ORDER BY name").all(),
+    // alle Spieler (auch ohne Konto – die können per E-Mail eingeladen und verknüpft werden)
+    db.prepare("SELECT id, name, first_name, last_name, club, NULLIF(user_email, '') AS user_email FROM players ORDER BY name").all(),
     t.created_by ? db.prepare("SELECT email FROM users WHERE id = ? OR base44_id = ?").bind(t.created_by, t.created_by).first<{ email: string }>() : null,
   ]);
   return c.json({ players, creator_email: creator?.email ?? null, protected: protectedCoOrganizers(coOrganizerEmails(t), creator?.email) });
+});
+
+/**
+ * Mitveranstalter einladen: E-Mail in die Liste aufnehmen, optional einen Spieler ohne Konto mit dieser E-Mail verknüpfen
+ * (er wird bei der Registrierung automatisch zugeordnet) und eine Einladungs-Mail schicken (Konto-Mail, geht immer).
+ */
+org.post("/tournaments/:id/co-organizers/invite", requireUser, async (c) => {
+  const t = await organizerTournament(c);
+  const db = c.env.DB;
+  const u = c.var.user!;
+  const b = (await c.req.json().catch(() => ({}))) as { email?: string; player_id?: string };
+  const email = String(b.email ?? "").trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new HttpError(422, "Bitte eine gültige E-Mail-Adresse eingeben.");
+  const lower = email.toLowerCase();
+  const stmts: D1PreparedStatement[] = [];
+
+  const linked = await db.prepare("SELECT id, name FROM players WHERE lower(user_email) = ? LIMIT 1").bind(lower).first<{ id: string; name: string }>();
+  let player = linked;
+  if (!linked && b.player_id) {
+    const p = await db.prepare("SELECT id, name, user_email FROM players WHERE id = ?").bind(String(b.player_id)).first<{ id: string; name: string; user_email: string | null }>();
+    if (!p) throw new HttpError(404, "Spieler nicht gefunden.");
+    if (p.user_email) throw new HttpError(409, `${p.name} ist bereits mit einem anderen Konto verknüpft.`);
+    const now = nowIso();
+    stmts.push(
+      db.prepare("UPDATE players SET user_email = ?, updated_at = ? WHERE id = ?").bind(email, now, p.id),
+      db.prepare(`INSERT INTO player_action_log (id, player_id, player_name, action, changed_fields, old_values, new_values, actor_id, actor_email, actor_name, created_at)
+        VALUES (?, ?, ?, 'update', '["user_email"]', '{"user_email":null}', ?, ?, ?, ?, ?)`)
+        .bind(newId(), p.id, p.name, JSON.stringify({ user_email: email }), u.id, u.email, u.full_name ?? u.email, now),
+    );
+    player = p;
+  }
+
+  const list = coOrganizerEmails(t);
+  const already = list.some((e) => e.toLowerCase() === lower);
+  const next = already ? list : [...list, email];
+  if (!already) stmts.push(db.prepare("UPDATE tournaments SET co_organizer_emails = ?, updated_at = ? WHERE id = ?").bind(JSON.stringify(next), nowIso(), t.id));
+  if (stmts.length) await db.batch(stmts);
+
+  const registered = !!(await db.prepare("SELECT 1 FROM users WHERE email = ?").bind(lower).first());
+  const link = `${c.env.APP_URL}/tournaments/${t.id}`;
+  const login = `${c.env.APP_URL}/login?redirect=${encodeURIComponent(`/tournaments/${t.id}`)}`;
+  const inviter = u.full_name || u.email;
+  const mail = await sendMail(c.env, "account", {
+    to: email,
+    reply_to: u.email,
+    subject: `Einladung als Mitveranstalter: ${t.name}`,
+    text: `Servus${player ? ` ${player.name}` : ""}!\n\n${inviter} hat dich als Mitveranstalter für das Turnier „${t.name}“ auf 9pintour.at eingetragen.\n` +
+      `Als Mitveranstalter kannst du den Startplan bearbeiten, Ergebnisse eintragen und weitere Mitveranstalter einladen.\n\n` +
+      (registered
+        ? `Zum Turnier: ${link}\n`
+        : `Du hast noch kein Konto. Registriere dich bitte mit genau dieser E-Mail-Adresse (${email}) – per Google oder mit Passwort – dann hast du sofort Zugriff:\n${login}\n` +
+          (player ? `Dein Spielerprofil (${player.name}) wird dabei automatisch mit deinem Konto verbunden.\n` : "")) +
+      `\nGut Holz!\n9-Pin Tour`,
+  }).catch((e) => { console.log("Einladungs-Mail fehlgeschlagen", e); return "failed" as const; });
+
+  return c.json({ ok: true, co_organizer_emails: next, registered, player: player ? { id: player.id, name: player.name } : null, mail });
 });
 
 /** Turnier abschließen: Platzierungen + Tour-Punkte aus den aktuellen Scores neu vergeben */

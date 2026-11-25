@@ -30,7 +30,7 @@ export default function TournamentEditDialog({ open, onOpenChange, tournament, i
   const { toast } = useToast();
   const [coEmails, setCoEmails] = useState([]);
   const [newEmail, setNewEmail] = useState('');
-  const [inviteDialogEmail, setInviteDialogEmail] = useState(null);
+  const [invite, setInvite] = useState(null); // { player?, email? }
   // Multi-Spielort (9PinFuture)
   const [multiVenue, setMultiVenue] = useState(false);
   const [venues, setVenues] = useState([]);
@@ -50,15 +50,16 @@ export default function TournamentEditDialog({ open, onOpenChange, tournament, i
   const hasCoEmail = (email) => coEmails.some(e => sameMail(e, email));
   const isProtected = (email) => protectedEmails.includes(String(email || '').toLowerCase());
 
-  // Players with a user_email that are not yet in coEmails
-  const filteredPlayerSuggestions = playerSearch.trim().length >= 1
+  // Spieler (mit oder ohne Konto), die noch nicht Mitveranstalter sind – mit Konto zuerst
+  const searchTerm = playerSearch.trim().toLowerCase();
+  const filteredPlayerSuggestions = searchTerm.length >= 2
     ? allPlayers.filter(p =>
-        p.user_email &&
-        !hasCoEmail(p.user_email) &&
-        ((p.name || `${p.first_name} ${p.last_name}`).toLowerCase().includes(playerSearch.toLowerCase()) ||
-         p.user_email.toLowerCase().includes(playerSearch.toLowerCase()))
-      ).slice(0, 6)
+        !(p.user_email && hasCoEmail(p.user_email)) &&
+        ((p.name || `${p.first_name} ${p.last_name}`).toLowerCase().includes(searchTerm) ||
+         (p.user_email || '').toLowerCase().includes(searchTerm))
+      ).sort((a, b) => (b.user_email ? 1 : 0) - (a.user_email ? 1 : 0)).slice(0, 8)
     : [];
+  const searchIsEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(playerSearch.trim()) && !hasCoEmail(playerSearch.trim());
 
   useEffect(() => {
     if (tournament) {
@@ -167,18 +168,18 @@ export default function TournamentEditDialog({ open, onOpenChange, tournament, i
 
   return (
     <>
-    {inviteDialogEmail && (
+    {invite && (
       <InviteCoOrganizerDialog
-        open={!!inviteDialogEmail}
-        onOpenChange={(v) => { if (!v) setInviteDialogEmail(null); }}
-        email={inviteDialogEmail}
-        existingPlayer={allPlayers.find(p => sameMail(p.user_email, inviteDialogEmail)) || null}
+        open={!!invite}
+        onOpenChange={(v) => { if (!v) setInvite(null); }}
         tournament={tournament}
-        onConfirm={(email) => {
-          const updated = hasCoEmail(email) ? coEmails : [...coEmails, email];
-          setCoEmails(updated);
-          // Auto-save co_organizer_emails with the correct updated list
-          updateMutation.mutate({ ...form, day_configs: JSON.stringify(days), co_organizer_emails: updated });
+        player={invite.player || null}
+        email={invite.email || ''}
+        onDone={(r, email) => {
+          // serverseitig schon gespeichert – lokal ergänzen, ungespeicherte Änderungen im Dialog bleiben erhalten
+          setCoEmails(prev => prev.some(e => sameMail(e, email)) ? prev : [...prev, email]);
+          queryClient.invalidateQueries({ queryKey: ['co-organizer-options', tournament.id] });
+          queryClient.invalidateQueries({ queryKey: ['tournament', tournament.id] });
         }}
       />
     )}
@@ -630,36 +631,50 @@ export default function TournamentEditDialog({ open, onOpenChange, tournament, i
                   className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                 />
               </div>
-              {showPlayerSearch && filteredPlayerSuggestions.length > 0 && (
+              {showPlayerSearch && (filteredPlayerSuggestions.length > 0 || searchIsEmail) && (
                 <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg overflow-hidden">
                   {filteredPlayerSuggestions.map(p => (
                     <button
                       key={p.id}
                       type="button"
                       onMouseDown={() => {
-                        const email = p.user_email;
-                        if (!hasCoEmail(email)) {
-                          setInviteDialogEmail(email);
-                        }
+                        setInvite({ player: p });
                         setPlayerSearch('');
                         setShowPlayerSearch(false);
                       }}
-                      className="w-full text-left px-3 py-2 text-sm hover:bg-muted/60 flex items-center justify-between"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-muted/60 flex items-center justify-between gap-2"
                     >
-                      <span className="font-medium">{p.name || `${p.first_name} ${p.last_name}`}</span>
-                      <span className="text-xs text-muted-foreground">{p.user_email}</span>
+                      <span className="min-w-0">
+                        <span className="font-medium">{p.name || `${p.first_name} ${p.last_name}`}</span>
+                        {p.club && <span className="text-xs text-muted-foreground"> · {p.club}</span>}
+                      </span>
+                      {p.user_email
+                        ? <span className="text-xs text-muted-foreground truncate">{p.user_email}</span>
+                        : <span className="text-xs text-amber-700 flex-shrink-0">kein Konto – einladen</span>}
                     </button>
                   ))}
+                  {searchIsEmail && (
+                    <button
+                      type="button"
+                      onMouseDown={() => { setInvite({ email: playerSearch.trim() }); setPlayerSearch(''); setShowPlayerSearch(false); }}
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-muted/60 text-primary font-medium"
+                    >
+                      „{playerSearch.trim()}“ per E-Mail einladen
+                    </button>
+                  )}
                 </div>
               )}
-              {showPlayerSearch && playerSearch.trim().length >= 1 && filteredPlayerSuggestions.length === 0 && (
+              {showPlayerSearch && searchTerm.length >= 2 && filteredPlayerSuggestions.length === 0 && !searchIsEmail && (
                 <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-md px-3 py-2 text-xs text-muted-foreground">
                   {coOptionsError ? `Spielerliste konnte nicht geladen werden: ${coOptionsError.message}`
                     : coOptionsLoading ? 'Spielerliste wird geladen…'
-                    : 'Kein Spieler mit verknüpftem Konto gefunden'}
+                    : 'Kein Spieler gefunden – du kannst die Person unten per E-Mail einladen.'}
                 </div>
               )}
             </div>
+            <button type="button" onClick={() => setInvite({ email: '' })} className="text-xs text-primary hover:underline">
+              Person ist nicht in der Spielerdatenbank? Per E-Mail einladen
+            </button>
 
             {coEmails.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-1">
