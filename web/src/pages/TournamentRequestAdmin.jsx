@@ -65,7 +65,7 @@ export default function TournamentRequestAdmin() {
         slot_duration: req.slot_duration || 60,
         lane_count: req.lane_count || 4,
         description: req.description || '',
-        co_organizer_emails: req.co_organizer_email ? [req.co_organizer_email] : [],
+        co_organizer_emails: (coEmail || req.co_organizer_email || req.organizer_email) ? [(coEmail || req.co_organizer_email || req.organizer_email).trim()] : [],
       });
     },
     onSuccess: () => {

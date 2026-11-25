@@ -280,7 +280,7 @@ export default function TournamentDetail() {
   const isOwner = isAuthenticated && !!tournament && (
     isTurnierAdmin(user) ||
     user?.id === tournament.created_by_id ||
-    coOrganizerEmails.includes(user?.email)
+    coOrganizerEmails.some(e => String(e).toLowerCase() === String(user?.email || '').toLowerCase())
   );
   const canEdit = isOwner && !isFinished && !isSeasonClosed;
   const canReopen = isOwner && isFinished && !isSeasonClosed;

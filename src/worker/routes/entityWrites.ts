@@ -5,7 +5,7 @@ import { Hono } from "hono";
 import { HttpError, nowIso, type AppEnv, type Ctx, type SessionUser } from "../env";
 import { isTurnierAdmin } from "../auth/session";
 import { newId } from "../auth/crypto";
-import { isTournamentOrganizer } from "../../rules/roles";
+import { coOrganizerChangeError, coOrganizerEmails, isTournamentOrganizer } from "../../rules/roles";
 import { ENTITIES, toEntity } from "./entities";
 
 const w = new Hono<AppEnv>();
@@ -73,6 +73,14 @@ async function authorize(c: Ctx, entity: string, op: Op, before: Row | null, dat
       if (!(await isOrganizerOf(c, before!.id))) deny("Du bist nicht Veranstalter dieses Turniers.");
       if (op === "delete" && !isAdminUser(u)) deny("Endgültig löschen darf nur der Admin.");
       if (!isTurnierAdmin(u)) for (const k of ["tier", "mode", "season_id", "tour_fee_remitted_cents"]) delete data[k]; // Wertung/Saison nur Turnier-Admins
+      if (op === "update" && !isTurnierAdmin(u) && "co_organizer_emails" in data) {
+        // Hauptveranstalter (Ersteller) und erster Mitveranstalter dürfen nur Admins entfernen
+        const creator = before!.created_by_id
+          ? await c.env.DB.prepare("SELECT email FROM users WHERE id = ? OR base44_id = ?").bind(String(before!.created_by_id), String(before!.created_by_id)).first<{ email: string }>()
+          : null;
+        const err = coOrganizerChangeError(coOrganizerEmails(before as never), coOrganizerEmails(data as never), creator?.email);
+        if (err) deny(err);
+      }
       break;
     }
     case "Team":

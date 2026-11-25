@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { HttpError, nowIso, type AppEnv, type Ctx } from "../env";
 import { requireUser } from "../auth/session";
 import { newId } from "../auth/crypto";
-import { isTournamentOrganizer } from "../../rules/roles";
+import { coOrganizerEmails, isTournamentOrganizer, protectedCoOrganizers } from "../../rules/roles";
 import { generateResultRecords } from "../../rules/results";
 import { loadPlans, loadPlayers, loadScores } from "../services/data";
 
@@ -28,6 +28,21 @@ function logAction(c: Ctx, t: TournamentRow, action: string, field: string, oldV
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).bind(newId(), t.id, t.name, action, field, oldValue, newValue, u.id, u.email, u.full_name ?? u.email, nowIso());
 }
+
+/**
+ * Mitveranstalter-Auswahl im Dialog „Turnier bearbeiten“: Spieler mit verknüpftem Konto (Name + E-Mail) und die
+ * geschützten Einträge (Hauptveranstalter, erster Mitveranstalter). Nur für Veranstalter dieses Turniers –
+ * die E-Mails bleiben in der normalen Spielerliste weiterhin verborgen.
+ */
+org.get("/tournaments/:id/co-organizer-options", requireUser, async (c) => {
+  const t = await organizerTournament(c);
+  const db = c.env.DB;
+  const [{ results: players }, creator] = await Promise.all([
+    db.prepare("SELECT id, name, first_name, last_name, user_email FROM players WHERE user_email IS NOT NULL AND user_email <> '' ORDER BY name").all(),
+    t.created_by ? db.prepare("SELECT email FROM users WHERE id = ? OR base44_id = ?").bind(t.created_by, t.created_by).first<{ email: string }>() : null,
+  ]);
+  return c.json({ players, creator_email: creator?.email ?? null, protected: protectedCoOrganizers(coOrganizerEmails(t), creator?.email) });
+});
 
 /** Turnier abschließen: Platzierungen + Tour-Punkte aus den aktuellen Scores neu vergeben */
 org.post("/tournaments/:id/finish", requireUser, async (c) => {

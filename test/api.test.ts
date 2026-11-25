@@ -105,3 +105,39 @@ describe("Datenimport /einrichtung", () => {
     expect(env.DB.raw.prepare("SELECT name FROM seasons WHERE id='s9'").get()).toEqual({ name: "A\nB" });
   });
 });
+
+describe("Mitveranstalter verwalten", () => {
+  const patch = (cookie: string, emails: string[]) => req("/api/entities/Tournament/t1", { method: "PATCH", cookie, body: { co_organizer_emails: emails } });
+  const list = () => JSON.parse((env.DB.raw.prepare("SELECT co_organizer_emails AS c FROM tournaments WHERE id='t1'").get() as { c: string }).c);
+
+  it("Mitveranstalter sieht Spieler mit Konto und darf weitere hinzufügen/entfernen, aber nicht den ersten", async () => {
+    const co = await login("veranstalter@x.at");
+    const opt = (await (await req("/api/tournaments/t1/co-organizer-options", { cookie: co })).json()) as { players: { user_email: string }[]; protected: string[] };
+    expect(opt.players.map((p) => p.user_email)).toEqual(["p1@x.at", "p2@x.at", "p3@x.at"]);
+    expect(opt.protected).toEqual(["veranstalter@x.at"]);
+    expect((await req("/api/tournaments/t1/co-organizer-options", { cookie: await login("fremd@x.at") })).status).toBe(403);
+
+    expect((await patch(co, ["veranstalter@x.at", "p1@x.at", "p2@x.at"])).status).toBe(200);
+    expect(list()).toEqual(["veranstalter@x.at", "p1@x.at", "p2@x.at"]);
+
+    // weiterer Mitveranstalter entfernt einen anderen – erlaubt; den ersten – nicht
+    const p1 = await login("p1@x.at");
+    expect((await patch(p1, ["veranstalter@x.at", "p1@x.at"])).status).toBe(200);
+    expect((await patch(p1, ["p1@x.at"])).status).toBe(403);
+    expect((await patch(p1, ["p1@x.at", "Veranstalter@x.at"])).status).toBe(403); // erster muss vorne bleiben
+    expect(list()).toEqual(["veranstalter@x.at", "p1@x.at"]);
+
+    // Turnier-Admin darf alles
+    expect((await patch(await login("ta@x.at", "turnier_admin"), ["p1@x.at"])).status).toBe(200);
+  });
+
+  it("Hauptveranstalter (Ersteller) in der Liste ist geschützt", async () => {
+    const chef = await login("chef@x.at");
+    const chefId = (env.DB.raw.prepare("SELECT id FROM users WHERE email='chef@x.at'").get() as { id: string }).id;
+    env.DB.raw.prepare("UPDATE tournaments SET created_by = ?, co_organizer_emails = ? WHERE id='t1'").run(chefId, '["veranstalter@x.at","chef@x.at","p2@x.at"]');
+    const co = await login("veranstalter@x.at");
+    expect((await patch(co, ["veranstalter@x.at", "p2@x.at"])).status).toBe(403);
+    expect((await patch(co, ["veranstalter@x.at", "chef@x.at"])).status).toBe(200);
+    expect(chef).toBeTruthy();
+  });
+});

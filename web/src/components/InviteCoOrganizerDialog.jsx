@@ -7,14 +7,14 @@ import { base44 } from '@/api/base44Client';
 import { CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 
-export default function InviteCoOrganizerDialog({ open, onOpenChange, email, tournament, onConfirm }) {
+export default function InviteCoOrganizerDialog({ open, onOpenChange, email, tournament, onConfirm, existingPlayer: knownPlayer = null }) {
   const queryClient = useQueryClient();
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [newPlayer, setNewPlayer] = useState({ first_name: '', last_name: '', category: 'Herren' });
 
   const cachedPlayers = queryClient.getQueryData(['players']) || [];
-  const existingPlayer = cachedPlayers.find(p => p.user_email === email) || null;
+  const existingPlayer = knownPlayer || cachedPlayers.find(p => p.user_email === email) || null;
 
   const newPlayerValid = !existingPlayer && newPlayer.first_name.trim() && newPlayer.last_name.trim();
 

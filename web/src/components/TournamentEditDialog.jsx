@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import { base44, api } from '@/api/base44Client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TIERS } from '@/lib/tournamentPoints';
-import { Plus, Trash2, Upload, X, Search, Video } from 'lucide-react';
+import { Plus, Trash2, Upload, X, Search, Video, Lock } from 'lucide-react';
 import InviteCoOrganizerDialog from './InviteCoOrganizerDialog';
+import { useToast } from '@/components/ui/use-toast';
 import { generateMixedCombinations, formatCombination } from '@/lib/mixedCombinations';
 import { getCoOrganizerEmails } from '@/lib/coOrganizers';
 import { getVenues, isMultiVenue, serializeVenues } from '@/lib/venues';
@@ -26,6 +27,7 @@ export default function TournamentEditDialog({ open, onOpenChange, tournament, i
   const [form, setForm] = useState({});
   const [days, setDays] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const { toast } = useToast();
   const [coEmails, setCoEmails] = useState([]);
   const [newEmail, setNewEmail] = useState('');
   const [inviteDialogEmail, setInviteDialogEmail] = useState(null);
@@ -36,17 +38,23 @@ export default function TournamentEditDialog({ open, onOpenChange, tournament, i
   const [showPlayerSearch, setShowPlayerSearch] = useState(false);
   const playerSearchRef = useRef(null);
 
-  const { data: allPlayers = [] } = useQuery({
-    queryKey: ['players'],
-    queryFn: () => base44.entities.Player.list('name', 9999),
-    enabled: open,
+  // Spieler mit verknüpftem Konto + geschützte Mitveranstalter (eigener Endpunkt, auch für Mitveranstalter ohne Admin-Rechte)
+  const { data: coOptions } = useQuery({
+    queryKey: ['co-organizer-options', tournament?.id],
+    queryFn: () => api(`/tournaments/${encodeURIComponent(tournament.id)}/co-organizer-options`),
+    enabled: open && !!tournament?.id,
   });
+  const allPlayers = coOptions?.players || [];
+  const protectedEmails = isAdmin ? [] : (coOptions?.protected || []);
+  const sameMail = (a, b) => String(a || '').toLowerCase() === String(b || '').toLowerCase();
+  const hasCoEmail = (email) => coEmails.some(e => sameMail(e, email));
+  const isProtected = (email) => protectedEmails.includes(String(email || '').toLowerCase());
 
   // Players with a user_email that are not yet in coEmails
   const filteredPlayerSuggestions = playerSearch.trim().length >= 1
     ? allPlayers.filter(p =>
         p.user_email &&
-        !coEmails.includes(p.user_email) &&
+        !hasCoEmail(p.user_email) &&
         ((p.name || `${p.first_name} ${p.last_name}`).toLowerCase().includes(playerSearch.toLowerCase()) ||
          p.user_email.toLowerCase().includes(playerSearch.toLowerCase()))
       ).slice(0, 6)
@@ -122,6 +130,7 @@ export default function TournamentEditDialog({ open, onOpenChange, tournament, i
         .catch(err => console.error('Auto-recategorize failed:', err));
       onOpenChange(false);
     },
+    onError: (err) => toast({ title: 'Speichern fehlgeschlagen', description: err?.message || 'Unbekannter Fehler', variant: 'destructive' }),
   });
 
   const handleSubmit = (e) => {
@@ -163,9 +172,10 @@ export default function TournamentEditDialog({ open, onOpenChange, tournament, i
         open={!!inviteDialogEmail}
         onOpenChange={(v) => { if (!v) setInviteDialogEmail(null); }}
         email={inviteDialogEmail}
+        existingPlayer={allPlayers.find(p => sameMail(p.user_email, inviteDialogEmail)) || null}
         tournament={tournament}
         onConfirm={(email) => {
-          const updated = coEmails.includes(email) ? coEmails : [...coEmails, email];
+          const updated = hasCoEmail(email) ? coEmails : [...coEmails, email];
           setCoEmails(updated);
           // Auto-save co_organizer_emails with the correct updated list
           updateMutation.mutate({ ...form, day_configs: JSON.stringify(days), co_organizer_emails: updated });
@@ -628,7 +638,7 @@ export default function TournamentEditDialog({ open, onOpenChange, tournament, i
                       type="button"
                       onMouseDown={() => {
                         const email = p.user_email;
-                        if (!coEmails.includes(email)) {
+                        if (!hasCoEmail(email)) {
                           setInviteDialogEmail(email);
                         }
                         setPlayerSearch('');
@@ -652,16 +662,20 @@ export default function TournamentEditDialog({ open, onOpenChange, tournament, i
             {coEmails.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-1">
                 {coEmails.map(email => {
-                  const linkedPlayer = allPlayers.find(p => p.user_email === email);
+                  const linkedPlayer = allPlayers.find(p => sameMail(p.user_email, email));
                   const displayName = linkedPlayer
                     ? (linkedPlayer.name || `${linkedPlayer.first_name} ${linkedPlayer.last_name}`)
                     : email;
                   return (
-                    <span key={email} className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-medium px-2.5 py-1 rounded-full" title={email}>
+                    <span key={email} className="flex items-center gap-1 bg-primary/10 text-primary text-xs font-medium px-2.5 py-1 rounded-full" title={isProtected(email) ? `${email} – kann nur der Admin entfernen` : email}>
                       {displayName}
-                      <button type="button" onClick={() => setCoEmails(coEmails.filter(e => e !== email))} className="hover:text-destructive">
-                        <X className="w-3 h-3" />
-                      </button>
+                      {isProtected(email) ? (
+                        <Lock className="w-3 h-3 opacity-60" aria-label="Kann nur der Admin entfernen" />
+                      ) : (
+                        <button type="button" onClick={() => setCoEmails(coEmails.filter(e => e !== email))} className="hover:text-destructive">
+                          <X className="w-3 h-3" />
+                        </button>
+                      )}
                     </span>
                   );
                 })}
